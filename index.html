@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bloom" />
+  <meta name="theme-color" content="#c97baa" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <title>Bloom — Period Tracker</title>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --pink:        #c97baa;
+      --pink-light:  #f0c4df;
+      --pink-dark:   #9e5080;
+      --purple:      #9b7ec8;
+      --purple-light:#d8cff0;
+      --bg:          #fdf0f6;
+      --surface:     #ffffff;
+      --surface-alt: #f9e8f3;
+      --border:      #e8c8de;
+      --text:        #3d2040;
+      --muted:       #8a607a;
+      --white:       #ffffff;
+      --period-color:#e8648c;
+      --period-bg:   #fde8ef;
+      --fertile-color:#b090e0;
+      --fertile-bg:  #ede8f8;
+      --predicted:   #f4aec8;
+      --ovulation:   #7a4fbf;
+      --shadow:      0 2px 12px rgba(201,123,170,.12);
+      --shadow-lg:   0 8px 40px rgba(61,32,64,.2);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --nav-h:       64px;
+      --r-sm: 6px; --r-md: 12px; --r-lg: 20px; --r-full: 9999px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e0f1a; --surface: #2d1a28; --surface-alt: #3a2235;
+        --border: #5a3050; --text: #f0d8ea; --muted: #c09ab0;
+      }
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, textarea { font-family: inherit; font-size: 15px; color: var(--text); }
+
+    /* ── Layout ── */
+    #app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; position: relative; overflow: hidden; }
+    #content { flex: 1; overflow-y: auto; padding: 16px; padding-top: calc(var(--safe-top) + 16px); padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 24px); }
+
+    /* ── Bottom Nav ── */
+    .nav { display: flex; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; height: calc(var(--nav-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--surface); border-top: 1px solid var(--border); z-index: 100; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: var(--muted); padding-top: 8px; cursor: pointer; transition: color .15s; }
+    .nav-item.active { color: var(--pink); }
+    .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-label { font-size: 11px; font-weight: 500; }
+
+    /* ── Shared ── */
+    .page-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+    .card { background: var(--surface); border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    .btn { border-radius: var(--r-full); padding: 12px 24px; font-size: 15px; font-weight: 600; width: 100%; transition: opacity .15s; }
+    .btn:active { opacity: .8; }
+    .btn-primary { background: var(--pink); color: var(--white); }
+    .btn-secondary { background: var(--surface-alt); color: var(--pink-dark); }
+    .btn-danger { background: #fde8ef; color: #e8648c; }
+    .btn-saved { background: #4caf7d !important; color: white !important; }
+    .section-label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+    .form-input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--surface-alt); color: var(--text); font-size: 15px; }
+    .form-input:focus { outline: none; border-color: var(--pink); }
+    .form-error { color: #e8648c; font-size: 13px; margin-bottom: 12px; }
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { border: 1.5px solid var(--border); border-radius: var(--r-full); padding: 8px 16px; font-size: 13px; color: var(--muted); background: transparent; transition: all .15s; white-space: nowrap; cursor: pointer; }
+    .chip.active { background: var(--pink); border-color: var(--pink); color: white; }
+
+    /* ── Dashboard ── */
+    .status-card { border-radius: var(--r-lg); padding: 24px; margin-bottom: 16px; text-align: center; transition: transform .1s; }
+    .status-card.clickable { cursor: pointer; }
+    .status-card.clickable:active { transform: scale(.98); }
+    .status-period   { background: linear-gradient(135deg, #e8648c, #c97baa); color: white; }
+    .status-today    { background: linear-gradient(135deg, #c97baa, #9b7ec8); color: white; }
+    .status-late     { background: linear-gradient(135deg, #9b7ec8, #7a6eb0); color: white; }
+    .status-upcoming { background: linear-gradient(135deg, var(--surface-alt), var(--pink-light)); }
+    .status-neutral  { background: var(--surface-alt); }
+    .status-label { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .status-sub   { font-size: 13px; opacity: .85; }
+    .fertile-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .fertile-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--purple); flex-shrink: 0; }
+    .fertile-title { font-size: 13px; font-weight: 600; color: var(--purple); }
+    .fertile-dates { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .ov-badge { background: var(--purple-light); color: var(--ovulation); border-radius: var(--r-full); padding: 2px 12px; font-size: 11px; font-weight: 600; }
+    .stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
+    .stat-pill { flex: 1; background: var(--surface); border-radius: var(--r-md); padding: 12px; text-align: center; box-shadow: var(--shadow); }
+    .stat-value { display: block; font-size: 24px; font-weight: 700; color: var(--pink); }
+    .stat-label { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .install-banner { background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); border-radius: var(--r-md); padding: 16px; margin-bottom: 16px; font-size: 13px; color: var(--text); line-height: 1.5; }
+    .install-banner strong { display: block; margin-bottom: 4px; }
+
+    /* ── Modal ── */
+    .overlay { position: fixed; inset: 0; background: rgba(61,32,64,.4); display: flex; align-items: flex-end; z-index: 200; animation: fadeIn .2s; }
+    .sheet { width: 100%; max-width: 430px; margin: 0 auto; background: var(--surface); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 16px 20px calc(24px + var(--safe-bottom)); box-shadow: var(--shadow-lg); animation: slideUp .25s ease; }
+    .sheet-handle { width: 40px; height: 4px; background: var(--border); border-radius: var(--r-full); margin: 0 auto 20px; }
+    .sheet-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+    .optional { font-weight: 400; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+    /* ── Calendar ── */
+    .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .cal-title  { font-size: 18px; font-weight: 700; }
+    .cal-nav    { font-size: 26px; color: var(--pink); padding: 4px 12px; }
+    .cal-grid   { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 16px; }
+    .cal-dayname { text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); padding: 4px 0 8px; }
+    .cal-day    { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; position: relative; transition: transform .1s; font-size: 13px; font-weight: 500; }
+    .cal-day:active { transform: scale(.9); }
+    .cal-period { background: var(--period-bg); color: var(--period-color); font-weight: 700; }
+    .cal-predicted { border: 2px dashed var(--predicted); }
+    .cal-fertile { background: var(--fertile-bg); color: var(--fertile-color); }
+    .cal-ovulation { background: var(--purple-light); color: var(--ovulation); font-weight: 700; }
+    .cal-today-ring { outline: 2px solid var(--pink); outline-offset: 1px; }
+    .cal-selected { outline: 2.5px solid var(--pink-dark); outline-offset: 1px; }
+    .cal-symdot { position: absolute; bottom: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--pink-dark); }
+    .cal-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .day-detail { padding: 16px; }
+    .day-detail-date { font-weight: 700; margin-bottom: 12px; color: var(--pink-dark); }
+    .status-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .sbadge { font-size: 11px; font-weight: 600; border-radius: var(--r-full); padding: 2px 12px; }
+    .sbadge-period    { background: var(--period-bg); color: var(--period-color); }
+    .sbadge-predicted { background: var(--pink-light); color: var(--pink-dark); }
+    .sbadge-fertile   { background: var(--fertile-bg); color: var(--fertile-color); }
+    .sbadge-ovulation { background: var(--purple-light); color: var(--ovulation); }
+    .detail-row { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .detail-row b { color: var(--text); }
+    .detail-empty { font-size: 13px; color: var(--muted); }
+
+    /* ── Settings ── */
+    .settings-section { font-size: 15px; font-weight: 700; color: var(--pink-dark); margin-bottom: 16px; }
+    .stepper-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .stepper-row:last-child { border-bottom: none; }
+    .stepper-label { font-size: 13px; }
+    .stepper-controls { display: flex; align-items: center; gap: 12px; }
+    .stepper-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--pink-light); color: var(--pink-dark); font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .stepper-btn:active { background: var(--pink); color: white; }
+    .stepper-val { font-size: 18px; font-weight: 700; min-width: 28px; text-align: center; color: var(--pink); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .toggle-label { font-size: 13px; font-weight: 600; }
+    .toggle-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .toggle-btn { background: var(--border); color: var(--muted); border-radius: var(--r-full); padding: 8px 16px; font-size: 13px; font-weight: 700; }
+    .toggle-btn.on { background: var(--pink); color: white; }
+    .notif-note { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 12px; }
+    .data-info { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .about-block { text-align: center; padding: 24px 16px; color: var(--muted); font-size: 13px; line-height: 2; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="content"></div>
+  <nav class="nav">
+    <div class="nav-item active" data-page="home">
+      <span class="nav-icon">🌸</span><span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" data-page="calendar">
+      <span class="nav-icon">📅</span><span class="nav-label">Calendar</span>
+    </div>
+    <div class="nav-item" data-page="log">
+      <span class="nav-icon">✏️</span><span class="nav-label">Log</span>
+    </div>
+    <div class="nav-item" data-page="settings">
+      <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
+    </div>
+  </nav>
+</div>
+
+<script>
+// ── Data Layer ──────────────────────────────────────────────────────────────
+const DB = {
+  get cycles()  { try { return JSON.parse(localStorage.getItem('pt_cycles')  || '[]') } catch { return [] } },
+  get symptoms(){ try { return JSON.parse(localStorage.getItem('pt_symptoms')|| '[]') } catch { return [] } },
+  get settings(){ try { return { averageCycleLength:28, averagePeriodLength:5, notificationsEnabled:false, reminderDaysBefore:2, ...JSON.parse(localStorage.getItem('pt_settings')||'{}') } } catch { return {averageCycleLength:28,averagePeriodLength:5,notificationsEnabled:false,reminderDaysBefore:2} } },
+  saveCycles(v)   { localStorage.setItem('pt_cycles',   JSON.stringify(v)) },
+  saveSymptoms(v) { localStorage.setItem('pt_symptoms', JSON.stringify(v)) },
+  saveSettings(v) { localStorage.setItem('pt_settings', JSON.stringify(v)) },
+  updateSetting(k,v) { const s=this.settings; s[k]=v; this.saveSettings(s) }
+}
+
+// ── Date Utilities ───────────────────────────────────────────────────────────
+function todayISO() { return toISO(new Date()) }
+function toISO(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` }
+function pad(n) { return String(n).padStart(2,'0') }
+function parseISO(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d) }
+function addDays(d,n) { const r=new Date(d); r.setDate(r.getDate()+n); return r }
+function daysBetween(a,b) { return Math.round((parseISO(b)-parseISO(a))/(86400000)) }
+function daysUntil(iso) { return daysBetween(todayISO(), iso) }
+function isInRange(d,s,e) { return d>=s && d<=e }
+function fmtShort(iso) { return parseISO(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'}) }
+function fmtMonthYear(y,m) { return new Date(y,m,1).toLocaleDateString('en-US',{month:'long',year:'numeric'}) }
+function getDaysInMonth(y,m) { const days=[],d=new Date(y,m,1); while(d.getMonth()===m){days.push(toISO(d));d.setDate(d.getDate()+1)} return days }
+function firstDayOfMonth(y,m) { return new Date(y,m,1).getDay() }
+
+// ── Cycle Algorithms ─────────────────────────────────────────────────────────
+function avgCycleLength(cycles, fallback=28) {
+  const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
+  if(sorted.length<2) return fallback
+  const recent=sorted.slice(-7)
+  const lens=[]
+  for(let i=1;i<recent.length;i++){const d=daysBetween(recent[i-1].startDate,recent[i].startDate);if(d>=15&&d<=60)lens.push(d)}
+  if(!lens.length) return fallback
+  return Math.round(lens.reduce((a,b)=>a+b,0)/lens.length)
+}
+
+function predictNext(cycles, settings) {
+  const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
+  const last=sorted[sorted.length-1]
+  if(!last) return null
+  const avg=avgCycleLength(cycles,settings.averageCycleLength)
+  const start=addDays(parseISO(last.startDate),avg)
+  const end=addDays(new Date(start),settings.averagePeriodLength-1)
+  return { predictedStart:toISO(start), predictedEnd:toISO(end), confidence:sorted.length>=3?'high':'low' }
+}
+
+function fertileWindow(cycles, settings) {
+  const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
+  const last=sorted[sorted.length-1]
+  if(!last) return null
+  const avg=avgCycleLength(cycles,settings.averageCycleLength)
+  const ov=addDays(parseISO(last.startDate),avg-14)
+  return { fertileStart:toISO(addDays(ov,-5)), fertileEnd:toISO(addDays(ov,1)), ovulationDate:toISO(ov) }
+}
+
+function getDayStatus(iso, cycles, pred, fert) {
+  const statuses=[]
+  for(const c of cycles){const end=c.endDate||c.startDate;if(isInRange(iso,c.startDate,end)){statuses.push('period');break}}
+  if(!statuses.includes('period')&&pred&&isInRange(iso,pred.predictedStart,pred.predictedEnd))statuses.push('predicted')
+  if(fert){if(iso===fert.ovulationDate)statuses.push('ovulation');else if(isInRange(iso,fert.fertileStart,fert.fertileEnd))statuses.push('fertile')}
+  return statuses
+}
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const SYMPTOMS=[
+  {id:'cramps',label:'Cramps',emoji:'😣'},{id:'bloating',label:'Bloating',emoji:'🫧'},
+  {id:'headache',label:'Headache',emoji:'🤕'},{id:'backache',label:'Backache',emoji:'🔩'},
+  {id:'nausea',label:'Nausea',emoji:'🤢'},{id:'fatigue',label:'Fatigue',emoji:'😴'},
+  {id:'acne',label:'Acne',emoji:'🧴'},{id:'tender',label:'Breast pain',emoji:'💗'},
+  {id:'cravings',label:'Cravings',emoji:'🍫'},{id:'spotting',label:'Spotting',emoji:'🩸'}
+]
+const MOODS=[
+  {id:'happy',label:'Happy',emoji:'😊'},{id:'calm',label:'Calm',emoji:'😌'},
+  {id:'sensitive',label:'Sensitive',emoji:'🥺'},{id:'irritable',label:'Irritable',emoji:'😤'},
+  {id:'anxious',label:'Anxious',emoji:'😰'},{id:'sad',label:'Sad',emoji:'😢'},
+  {id:'energetic',label:'Energetic',emoji:'⚡'},{id:'tired',label:'Tired',emoji:'😩'}
+]
+const FLOWS=[{id:'spotting',label:'Spotting'},{id:'light',label:'Light'},{id:'medium',label:'Medium'},{id:'heavy',label:'Heavy'},{id:'none',label:'None'}]
+
+// ── Router ───────────────────────────────────────────────────────────────────
+let currentPage = 'home'
+const content = document.getElementById('content')
+
+function navigate(page) {
+  currentPage = page
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page)
+  })
+  render()
+}
+
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => navigate(el.dataset.page))
+})
+
+function render() {
+  switch(currentPage) {
+    case 'home':     renderHome(); break
+    case 'calendar': renderCalendar(); break
+    case 'log':      renderLog(); break
+    case 'settings': renderSettings(); break
+  }
+}
+
+// ── Home Page ────────────────────────────────────────────────────────────────
+function renderHome() {
+  const cycles = DB.cycles
+  const settings = DB.settings
+  const pred = predictNext(cycles, settings)
+  const fert = fertileWindow(cycles, settings)
+  const avg = avgCycleLength(cycles, settings.averageCycleLength)
+  const today = todayISO()
+  const active = cycles.find(c => !c.endDate) || null
+
+  let cardClass, cardLabel, cardSub, cardAction = null
+
+  if (active) {
+    const day = daysBetween(active.startDate, today) + 1
+    cardClass = 'status-period'; cardLabel = `Day ${day} of your period`; cardSub = 'Tap to end period'
+    cardAction = () => { const c=[...DB.cycles]; const i=c.findIndex(x=>!x.endDate); if(i>=0){c[i]={...c[i],endDate:today};DB.saveCycles(c)} renderHome() }
+  } else if (!pred) {
+    cardClass = 'status-neutral'; cardLabel = 'Log your first period'; cardSub = 'Tap + Log period below'
+  } else {
+    const days = daysUntil(pred.predictedStart)
+    if (days < 0)      { cardClass='status-late';     cardLabel='Period may be late';    cardSub=`Expected ${fmtShort(pred.predictedStart)}` }
+    else if (days===0) { cardClass='status-today';    cardLabel='Period expected today'; cardSub='Tap to log it'; cardAction=()=>showLogModal() }
+    else               { cardClass='status-upcoming'; cardLabel=`${days} days until period`; cardSub=`Expected ${fmtShort(pred.predictedStart)}` }
+  }
+
+  const isStandalone = window.navigator.standalone
+  const isFertileToday = fert && today >= fert.fertileStart && today <= fert.fertileEnd
+  const isOvToday = fert && today === fert.ovulationDate
+
+  content.innerHTML = `
+    <h1 class="page-title">Hi 🌸</h1>
+
+    <div class="status-card ${cardClass}${cardAction?' clickable':''}" id="status-card">
+      <div class="status-label">${cardLabel}</div>
+      <div class="status-sub">${cardSub}</div>
+    </div>
+
+    ${fert ? `
+    <div class="card">
+      <div class="fertile-header">
+        <span class="fertile-dot"></span>
+        <span class="fertile-title">${isOvToday?'Ovulation day today':isFertileToday?'Fertile window — today':'Fertile window'}</span>
+      </div>
+      <div class="fertile-dates">
+        ${fmtShort(fert.fertileStart)} – ${fmtShort(fert.fertileEnd)}
+        <span class="ov-badge">Ovulation ${fmtShort(fert.ovulationDate)}</span>
+      </div>
+    </div>` : ''}
+
+    <div class="stats-row">
+      <div class="stat-pill"><span class="stat-value">${avg}</span><span class="stat-label">Avg cycle</span></div>
+      <div class="stat-pill"><span class="stat-value">${settings.averagePeriodLength}</span><span class="stat-label">Period days</span></div>
+      <div class="stat-pill"><span class="stat-value">${cycles.length}</span><span class="stat-label">Logged</span></div>
+    </div>
+
+    <button class="btn btn-primary" id="log-btn" style="margin-bottom:16px">${active?'Update period':'+ Log period'}</button>
+
+    ${!isStandalone ? `
+    <div class="install-banner">
+      <strong>📱 Add to Home Screen for best experience</strong>
+      Tap the Share icon in Safari → "Add to Home Screen" to install Bloom as an app with notification support.
+    </div>` : ''}
+  `
+
+  document.getElementById('status-card')?.addEventListener('click', () => cardAction?.())
+  document.getElementById('log-btn').addEventListener('click', showLogModal)
+}
+
+function showLogModal() {
+  const cycles = DB.cycles
+  const active = cycles.find(c => !c.endDate) || null
+  const today = todayISO()
+
+  const overlay = document.createElement('div')
+  overlay.className = 'overlay'
+  overlay.innerHTML = active ? `
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Update Period</div>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px">Period started <strong>${active.startDate}</strong></p>
+      <div class="form-group">
+        <label>End date</label>
+        <input type="date" id="end-date" class="form-input" value="${today}" max="${today}">
+      </div>
+      <button class="btn btn-primary" id="end-btn" style="margin-bottom:8px">Mark period ended</button>
+      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+    </div>
+  ` : `
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Log Period</div>
+      <div class="form-group">
+        <label>Period start date</label>
+        <input type="date" id="start-date" class="form-input" value="${today}" max="${today}">
+      </div>
+      <div class="form-group">
+        <label>End date <span class="optional">(optional)</span></label>
+        <input type="date" id="end-date" class="form-input" max="${today}">
+      </div>
+      <div id="form-error" class="form-error" style="display:none"></div>
+      <button class="btn btn-primary" id="save-btn" style="margin-bottom:8px">Save</button>
+      <button class="btn btn-secondary" id="today-btn" style="margin-bottom:8px">Started today</button>
+      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+    </div>
+  `
+
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove() })
+  document.body.appendChild(overlay)
+
+  document.getElementById('cancel-btn').addEventListener('click', () => overlay.remove())
+
+  if (active) {
+    document.getElementById('end-btn').addEventListener('click', () => {
+      const end = document.getElementById('end-date').value || today
+      const c = [...DB.cycles]
+      const i = c.findIndex(x => !x.endDate)
+      if (i >= 0) { c[i] = { ...c[i], endDate: end }; DB.saveCycles(c) }
+      overlay.remove(); renderHome()
+    })
+  } else {
+    document.getElementById('today-btn').addEventListener('click', () => {
+      document.getElementById('start-date').value = today
+      document.getElementById('end-date').value = ''
+    })
+    document.getElementById('save-btn').addEventListener('click', () => {
+      const start = document.getElementById('start-date').value
+      const end   = document.getElementById('end-date').value
+      const err   = document.getElementById('form-error')
+      if (!start) { err.style.display='block'; err.textContent='Please enter a start date'; return }
+      if (end && end < start) { err.style.display='block'; err.textContent='End date must be after start date'; return }
+      const c = [...DB.cycles]
+      const existing = c.findIndex(x => !x.endDate)
+      if (existing >= 0) c[existing] = { ...c[existing], endDate: start }
+      c.unshift({ id: crypto.randomUUID(), startDate: start, endDate: end || null, notes: '' })
+      DB.saveCycles(c)
+      overlay.remove(); renderHome()
+    })
+  }
+}
+
+// ── Calendar Page ─────────────────────────────────────────────────────────────
+let calYear, calMonth, calSelected = null
+function renderCalendar() {
+  const now = new Date()
+  if (!calYear)  calYear  = now.getFullYear()
+  if (calMonth == null) calMonth = now.getMonth()
+
+  const cycles   = DB.cycles
+  const settings = DB.settings
+  const pred     = predictNext(cycles, settings)
+  const fert     = fertileWindow(cycles, settings)
+  const days     = getDaysInMonth(calYear, calMonth)
+  const firstDay = firstDayOfMonth(calYear, calMonth)
+  const today    = todayISO()
+  const symDates = new Set(DB.symptoms.map(s => s.date))
+
+  let gridHTML = ''
+  const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa']
+  dayNames.forEach(d => { gridHTML += `<div class="cal-dayname">${d}</div>` })
+  for (let i = 0; i < firstDay; i++) gridHTML += '<div></div>'
+
+  days.forEach(iso => {
+    const st = getDayStatus(iso, cycles, pred, fert)
+    let cls = 'cal-day'
+    if (st.includes('period'))    cls += ' cal-period'
+    if (st.includes('predicted')) cls += ' cal-predicted'
+    if (st.includes('fertile'))   cls += ' cal-fertile'
+    if (st.includes('ovulation')) cls += ' cal-ovulation'
+    if (iso === today)            cls += ' cal-today-ring'
+    if (iso === calSelected)      cls += ' cal-selected'
+    const num = parseInt(iso.slice(8))
+    const dot = symDates.has(iso) ? '<span class="cal-symdot"></span>' : ''
+    gridHTML += `<div class="${cls}" data-iso="${iso}">${num}${dot}</div>`
+  })
+
+  const selSym = calSelected ? DB.symptoms.find(s => s.date === calSelected) : null
+  const selSt  = calSelected ? getDayStatus(calSelected, cycles, pred, fert) : []
+
+  const badgeMap = { period:'Period', predicted:'Predicted', fertile:'Fertile', ovulation:'Ovulation' }
+  const badgeCls = { period:'sbadge-period', predicted:'sbadge-predicted', fertile:'sbadge-fertile', ovulation:'sbadge-ovulation' }
+
+  content.innerHTML = `
+    <div class="cal-header">
+      <button class="cal-nav" id="prev-month">‹</button>
+      <span class="cal-title">${fmtMonthYear(calYear, calMonth)}</span>
+      <button class="cal-nav" id="next-month">›</button>
+    </div>
+    <div class="cal-grid">${gridHTML}</div>
+    <div class="cal-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--period-bg);border:1px solid var(--period-color)"></span>Period</span>
+      <span class="legend-item"><span class="legend-dot" style="border:2px dashed var(--predicted);background:transparent"></span>Predicted</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--fertile-bg)"></span>Fertile</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--purple-light)"></span>Ovulation</span>
+    </div>
+    ${calSelected ? `
+    <div class="card day-detail">
+      <div class="day-detail-date">${calSelected}</div>
+      ${selSt.length ? `<div class="status-badges">${selSt.map(s=>`<span class="sbadge ${badgeCls[s]}">${badgeMap[s]}</span>`).join('')}</div>` : ''}
+      ${selSym ? `
+        ${selSym.flow    ? `<div class="detail-row"><b>Flow:</b> ${selSym.flow}</div>`    : ''}
+        ${selSym.mood    ? `<div class="detail-row"><b>Mood:</b> ${selSym.mood}</div>`    : ''}
+        ${selSym.symptoms?.length ? `<div class="detail-row"><b>Symptoms:</b> ${selSym.symptoms.join(', ')}</div>` : ''}
+        ${selSym.notes   ? `<div class="detail-row"><b>Notes:</b> ${selSym.notes}</div>` : ''}
+      ` : '<p class="detail-empty">No symptoms logged for this day.</p>'}
+    </div>` : ''}
+  `
+
+  document.getElementById('prev-month').addEventListener('click', () => {
+    if (calMonth === 0) { calMonth = 11; calYear-- } else calMonth--
+    renderCalendar()
+  })
+  document.getElementById('next-month').addEventListener('click', () => {
+    if (calMonth === 11) { calMonth = 0; calYear++ } else calMonth++
+    renderCalendar()
+  })
+  document.querySelectorAll('.cal-day[data-iso]').forEach(el => {
+    el.addEventListener('click', () => {
+      calSelected = el.dataset.iso === calSelected ? null : el.dataset.iso
+      renderCalendar()
+    })
+  })
+}
+
+// ── Log Page ─────────────────────────────────────────────────────────────────
+let logState = { date: '', flow: '', mood: '', symptoms: [], notes: '' }
+
+function renderLog() {
+  if (!logState.date) logState.date = todayISO()
+  const existing = DB.symptoms.find(s => s.date === logState.date)
+  if (existing) {
+    logState = { date: logState.date, flow: existing.flow||'', mood: existing.mood||'', symptoms: existing.symptoms||[], notes: existing.notes||'' }
+  }
+
+  content.innerHTML = `
+    <h1 class="page-title">Log Symptoms</h1>
+    <div class="card">
+      <span class="section-label">Date</span>
+      <input type="date" id="log-date" class="form-input" value="${logState.date}" max="${todayISO()}">
+    </div>
+    <div class="card">
+      <span class="section-label">Flow</span>
+      <div class="chip-row">
+        ${FLOWS.map(f => `<button class="chip${logState.flow===f.id?' active':''}" data-flow="${f.id}">${f.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <span class="section-label">Mood</span>
+      <div class="chip-row">
+        ${MOODS.map(m => `<button class="chip${logState.mood===m.id?' active':''}" data-mood="${m.id}">${m.emoji} ${m.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <span class="section-label">Symptoms</span>
+      <div class="chip-row">
+        ${SYMPTOMS.map(s => `<button class="chip${logState.symptoms.includes(s.id)?' active':''}" data-sym="${s.id}">${s.emoji} ${s.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <span class="section-label">Notes</span>
+      <textarea id="log-notes" class="form-input" rows="3" placeholder="How are you feeling today?" style="resize:none">${logState.notes}</textarea>
+    </div>
+    <button class="btn btn-primary" id="save-log" style="margin-bottom:16px">Save</button>
+  `
+
+  document.getElementById('log-date').addEventListener('change', e => {
+    logState.date = e.target.value
+    renderLog()
+  })
+  document.querySelectorAll('[data-flow]').forEach(el => el.addEventListener('click', () => { logState.flow = logState.flow===el.dataset.flow?'':el.dataset.flow; renderLog() }))
+  document.querySelectorAll('[data-mood]').forEach(el => el.addEventListener('click', () => { logState.mood = logState.mood===el.dataset.mood?'':el.dataset.mood; renderLog() }))
+  document.querySelectorAll('[data-sym]').forEach(el => el.addEventListener('click', () => {
+    const id = el.dataset.sym
+    logState.symptoms = logState.symptoms.includes(id) ? logState.symptoms.filter(s=>s!==id) : [...logState.symptoms,id]
+    renderLog()
+  }))
+  document.getElementById('log-notes').addEventListener('input', e => { logState.notes = e.target.value })
+  document.getElementById('save-log').addEventListener('click', () => {
+    const entry = { id: crypto.randomUUID(), ...logState }
+    const syms  = DB.symptoms
+    const i     = syms.findIndex(s => s.date === logState.date)
+    if (i >= 0) { syms[i] = { ...syms[i], ...logState } } else { syms.unshift(entry) }
+    DB.saveSymptoms(syms)
+    const btn = document.getElementById('save-log')
+    btn.textContent = '✓ Saved!'; btn.classList.add('btn-saved')
+    setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('btn-saved') }, 2000)
+  })
+}
+
+// ── Settings Page ─────────────────────────────────────────────────────────────
+function renderSettings() {
+  const s = DB.settings
+  const cycles = DB.cycles
+  const syms = DB.symptoms
+
+  content.innerHTML = `
+    <h1 class="page-title">Settings</h1>
+    <div class="card">
+      <div class="settings-section">Cycle Settings</div>
+      <div class="stepper-row">
+        <span class="stepper-label">Average cycle length</span>
+        <div class="stepper-controls">
+          <button class="stepper-btn" id="cl-dec">−</button>
+          <span class="stepper-val" id="cl-val">${s.averageCycleLength}</span>
+          <button class="stepper-btn" id="cl-inc">+</button>
+        </div>
+      </div>
+      <div class="stepper-row">
+        <span class="stepper-label">Average period length</span>
+        <div class="stepper-controls">
+          <button class="stepper-btn" id="pl-dec">−</button>
+          <span class="stepper-val" id="pl-val">${s.averagePeriodLength}</span>
+          <button class="stepper-btn" id="pl-inc">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="settings-section">Notifications</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Period reminders</div>
+          <div class="toggle-sub">Notify before predicted period</div>
+        </div>
+        <button id="notif-toggle" class="toggle-btn${s.notificationsEnabled?' on':''}">${s.notificationsEnabled?'ON':'OFF'}</button>
+      </div>
+      ${s.notificationsEnabled ? `
+      <div class="stepper-row">
+        <span class="stepper-label">Days before to remind</span>
+        <div class="stepper-controls">
+          <button class="stepper-btn" id="rb-dec">−</button>
+          <span class="stepper-val" id="rb-val">${s.reminderDaysBefore}</span>
+          <button class="stepper-btn" id="rb-inc">+</button>
+        </div>
+      </div>` : ''}
+      ${!window.navigator.standalone ? `<p class="notif-note">On iPhone, notifications require adding Bloom to your Home Screen first (Safari → Share → Add to Home Screen).</p>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="settings-section">Data</div>
+      <p class="data-info">${cycles.length} cycles · ${syms.length} symptom entries</p>
+      <button class="btn btn-secondary" id="export-btn" style="margin-bottom:8px">Export backup (JSON)</button>
+      <button class="btn btn-danger" id="clear-btn">Clear all data</button>
+    </div>
+
+    <div class="about-block">
+      <p>🌸 Bloom Period Tracker</p>
+      <p>Your data stays on your device — never uploaded anywhere.</p>
+    </div>
+  `
+
+  // Cycle length
+  document.getElementById('cl-dec').addEventListener('click', () => { const v=Math.max(21,DB.settings.averageCycleLength-1); DB.updateSetting('averageCycleLength',v); document.getElementById('cl-val').textContent=v })
+  document.getElementById('cl-inc').addEventListener('click', () => { const v=Math.min(40,DB.settings.averageCycleLength+1); DB.updateSetting('averageCycleLength',v); document.getElementById('cl-val').textContent=v })
+  // Period length
+  document.getElementById('pl-dec').addEventListener('click', () => { const v=Math.max(2,DB.settings.averagePeriodLength-1); DB.updateSetting('averagePeriodLength',v); document.getElementById('pl-val').textContent=v })
+  document.getElementById('pl-inc').addEventListener('click', () => { const v=Math.min(10,DB.settings.averagePeriodLength+1); DB.updateSetting('averagePeriodLength',v); document.getElementById('pl-val').textContent=v })
+  // Reminder days
+  document.getElementById('rb-dec')?.addEventListener('click', () => { const v=Math.max(1,DB.settings.reminderDaysBefore-1); DB.updateSetting('reminderDaysBefore',v); document.getElementById('rb-val').textContent=v })
+  document.getElementById('rb-inc')?.addEventListener('click', () => { const v=Math.min(7,DB.settings.reminderDaysBefore+1); DB.updateSetting('reminderDaysBefore',v); document.getElementById('rb-val').textContent=v })
+  // Notifications toggle
+  document.getElementById('notif-toggle').addEventListener('click', async () => {
+    if (!DB.settings.notificationsEnabled) {
+      if (!('Notification' in window)) { alert('Notifications are not supported in this browser.'); return }
+      const perm = await Notification.requestPermission()
+      if (perm === 'granted') { DB.updateSetting('notificationsEnabled', true); renderSettings() }
+      else alert('Please allow notifications in your browser settings.')
+    } else {
+      DB.updateSetting('notificationsEnabled', false); renderSettings()
+    }
+  })
+  // Export
+  document.getElementById('export-btn').addEventListener('click', () => {
+    const data = { cycles: DB.cycles, symptoms: DB.symptoms, settings: DB.settings, exportedAt: new Date().toISOString() }
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'})
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href = url; a.download = `bloom-backup-${todayISO()}.json`; a.click()
+    URL.revokeObjectURL(url)
+  })
+  // Clear
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    if (!confirm('Delete all data permanently?')) return
+    localStorage.removeItem('pt_cycles'); localStorage.removeItem('pt_symptoms'); localStorage.removeItem('pt_settings')
+    location.reload()
+  })
+}
+
+// ── Notification Reminder Check ───────────────────────────────────────────────
+async function checkReminders() {
+  const s = DB.settings
+  if (!s.notificationsEnabled) return
+  if (!('Notification' in window) || Notification.permission !== 'granted') return
+  const pred = predictNext(DB.cycles, s)
+  if (!pred) return
+  const reminderISO = toISO(addDays(parseISO(pred.predictedStart), -s.reminderDaysBefore))
+  const today = todayISO()
+  const key = `pt_notif_sent_${pred.predictedStart}`
+  if (localStorage.getItem(key) || reminderISO !== today) return
+  const reg = await navigator.serviceWorker?.ready
+  if (reg) {
+    await reg.showNotification('Bloom reminder 🌸', {
+      body: `Your period is expected in ${s.reminderDaysBefore} day(s). Be prepared!`,
+      icon: 'icons/icon-192.png', tag: 'period-reminder'
+    })
+    localStorage.setItem(key, '1')
+  }
+}
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {})
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+render()
+checkReminders()
+</script>
+</body>
+</html>
