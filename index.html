@@ -540,7 +540,7 @@ function renderHome(){
     ${!window.navigator.standalone?`<div class="install-banner"><strong>📱 Add to Home Screen</strong> Safari → Share → Add to Home Screen for notifications & offline use.</div>`:''}
   `
   document.getElementById('status-card')?.addEventListener('click',()=>cardAction?.())
-  document.getElementById('phase-card')?.addEventListener('click',()=>showPhaseModal(phase))
+  document.getElementById('phase-card')?.addEventListener('click',()=>showCycleChartModal(phase,cycles,settings))
   document.getElementById('log-btn').addEventListener('click',showLogModal)
   document.getElementById('log-day-btn').addEventListener('click',()=>navigate('log'))
   document.getElementById('supp-setup-card')?.addEventListener('click',showSuppSetupModal)
@@ -551,6 +551,108 @@ function renderHome(){
     tlog[id]=tlog[id]==='done'?null:'done'
     logs[today]=tlog;DB.saveMedLogs(logs)
     renderHome()
+  }))
+}
+
+function showCycleChartModal(phase,cycles,settings){
+  if(!phase)return
+  const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>b.startDate.localeCompare(a.startDate))
+  const last=sorted[0];if(!last)return
+  const avg=avgCycleLength(cycles,settings.averageCycleLength)
+  const pLen=settings.averagePeriodLength
+  const ovDay=avg-14
+  const cycleStart=parseISO(last.startDate)
+  const today=todayISO()
+
+  // Phase date ranges (offsets from cycle start, 0-indexed)
+  const follStart=pLen
+  const follEnd=Math.max(follStart,ovDay-3)
+  const ovStart=Math.max(follEnd+1,ovDay-2)
+  const ovEnd=ovDay+1
+  const lutStart=ovEnd+1
+  const lutEnd=avg-1
+
+  const phaseData=[
+    {key:'menstrual', name:'Menstrual', emoji:'🩸', color:'#e05472',
+     startOff:0,        endOff:pLen-1,  days:pLen},
+    {key:'follicular', name:'Follicular', emoji:'🌱', color:'#f0a500',
+     startOff:follStart, endOff:follEnd, days:Math.max(1,follEnd-follStart+1)},
+    {key:'ovulatory',  name:'Ovulatory',  emoji:'✨', color:'#4caf50',
+     startOff:ovStart,  endOff:ovEnd,   days:ovEnd-ovStart+1},
+    {key:'luteal',     name:'Luteal',     emoji:'🌙', color:'#9c27b0',
+     startOff:lutStart, endOff:lutEnd,  days:Math.max(1,lutEnd-lutStart+1)}
+  ]
+
+  // Conic gradient stops
+  let cum=0
+  const stops=phaseData.map(p=>{
+    const s=(cum/avg*100).toFixed(1)
+    cum+=p.days
+    const e=(cum/avg*100).toFixed(1)
+    return`${p.color} ${s}% ${e}%`
+  }).join(',')
+
+  // Today dot position on the wheel
+  const todayAngleRad=((phase.cycleDay-1)/avg*360-90)*Math.PI/180
+  const dotR=65,cx=100+dotR*Math.cos(todayAngleRad),cy=100+dotR*Math.sin(todayAngleRad)
+
+  const ov=document.createElement('div');ov.className='overlay'
+  ov.innerHTML=`<div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:24px">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🗓️ Cycle Overview</div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin:-4px 0 16px">Started ${fmtShort(last.startDate)} · ${avg}-day cycle</p>
+
+    <!-- Donut chart -->
+    <div style="position:relative;width:200px;height:200px;margin:0 auto 22px">
+      <div style="width:200px;height:200px;border-radius:50%;background:conic-gradient(${stops})"></div>
+      <!-- Hole -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:112px;height:112px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+        <div style="font-size:26px">${phase.emoji}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1">${phase.name}</div>
+        <div style="font-size:10px;color:var(--muted)">Day ${phase.cycleDay} of ${avg}</div>
+      </div>
+      <!-- Today dot -->
+      <svg style="position:absolute;inset:0;pointer-events:none" viewBox="0 0 200 200">
+        <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="white" stroke="#333" stroke-width="2.5"/>
+        <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="#333"/>
+      </svg>
+    </div>
+
+    <!-- Phase rows -->
+    ${phaseData.map(p=>{
+      const pStartISO=toISO(addDays(cycleStart,p.startOff))
+      const pEndISO=toISO(addDays(cycleStart,p.endOff))
+      const isCurrent=p.key===phase.key
+      const isPast=pEndISO<today&&!isCurrent
+      const badge=isCurrent
+        ?`<span style="background:var(--pink);color:#fff;font-size:9px;border-radius:99px;padding:2px 8px;font-weight:700;flex-shrink:0">YOU ARE HERE</span>`
+        :isPast
+        ?`<span style="background:var(--border);color:var(--muted);font-size:9px;border-radius:99px;padding:2px 8px;flex-shrink:0">DONE</span>`
+        :`<span style="background:#e8f5e9;color:#2e7d32;font-size:9px;border-radius:99px;padding:2px 8px;font-weight:600;flex-shrink:0">UPCOMING</span>`
+      return`<div data-phase-key="${p.key}" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--r-md);margin-bottom:8px;background:${isCurrent?'var(--pink-light)':'var(--surface-alt)'};border:2px solid ${isCurrent?'var(--pink)':'transparent'};cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div style="width:13px;height:13px;border-radius:50%;background:${p.color};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
+            <span style="font-size:14px;font-weight:700">${p.emoji} ${p.name}</span>
+            ${badge}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${fmtShort(pStartISO)} – ${fmtShort(pEndISO)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px">${p.days} days · Days ${p.startOff+1}–${p.endOff+1} of cycle</div>
+        </div>
+        <span style="color:var(--muted);font-size:18px;flex-shrink:0">›</span>
+      </div>`
+    }).join('')}
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 12px">Tap any phase to see food & supplement details</p>
+    <button class="btn btn-secondary" id="chart-close">Close</button>
+  </div>`
+
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('chart-close').addEventListener('click',()=>ov.remove())
+  ov.querySelectorAll('[data-phase-key]').forEach(el=>el.addEventListener('click',()=>{
+    ov.remove()
+    const key=el.dataset.phaseKey
+    showPhaseModal({...PHASES[key],key,cycleDay:phase.cycleDay,cycleLength:avg})
   }))
 }
 
