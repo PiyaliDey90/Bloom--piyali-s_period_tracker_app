@@ -637,7 +637,7 @@ function showCycleChartModal(phase,cycles,settings){
         <span style="color:var(--muted);font-size:18px;flex-shrink:0">›</span>
       </div>`
     }).join('')}
-    <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 12px">Tap any phase to see food & supplement details</p>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 12px">Tap the donut or any phase row for food & supplement details</p>
     <button class="btn btn-secondary" id="chart-close">Close</button>
   </div>`
 
@@ -670,6 +670,60 @@ function showCycleChartModal(phase,cycles,settings){
     ctx.strokeStyle='#333';ctx.lineWidth=2.5;ctx.stroke()
     ctx.beginPath();ctx.arc(dx,dy,3,0,Math.PI*2)
     ctx.fillStyle='#333';ctx.fill()
+
+    // Tap hint labels on each segment
+    let labelAngle=-Math.PI/2
+    phaseData.forEach(p=>{
+      const sweep=(p.days/avg)*Math.PI*2
+      const midAngle=labelAngle+sweep/2
+      const labelR=(outerR+innerR)/2
+      const lx=cx2+labelR*Math.cos(midAngle),ly=cy2+labelR*Math.sin(midAngle)
+      ctx.save()
+      ctx.translate(lx,ly)
+      ctx.font='bold 11px sans-serif'
+      ctx.fillStyle='rgba(255,255,255,0.9)'
+      ctx.textAlign='center'
+      ctx.textBaseline='middle'
+      // Only draw emoji label if segment is wide enough
+      if(sweep>0.5)ctx.fillText(p.emoji,0,0)
+      ctx.restore()
+      labelAngle+=sweep
+    })
+
+    // Canvas click → detect segment by angle & radius
+    canvas.style.cursor='pointer'
+    canvas.addEventListener('click',e=>{
+      const rect=canvas.getBoundingClientRect()
+      const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height
+      const mx=(e.clientX-rect.left)*scaleX,my=(e.clientY-rect.top)*scaleY
+      const dist=Math.sqrt((mx-cx2)**2+(my-cy2)**2)
+      if(dist<innerR||dist>outerR)return // click in hole or outside ring
+      let angle=Math.atan2(my-cy2,mx-cx2)+Math.PI/2 // rotate so 0 = top
+      if(angle<0)angle+=Math.PI*2
+      const dayInCycle=Math.round(angle/(Math.PI*2)*avg)
+      const hit=phaseData.find(p=>dayInCycle>=p.startOff&&dayInCycle<=p.endOff)
+        ||phaseData[phaseData.length-1]
+      ov.remove()
+      showPhaseModal({...PHASES[hit.key],key:hit.key,cycleDay:phase.cycleDay,cycleLength:avg})
+    })
+
+    // Touch support
+    canvas.addEventListener('touchend',e=>{
+      e.preventDefault()
+      const t=e.changedTouches[0]
+      const rect=canvas.getBoundingClientRect()
+      const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height
+      const mx=(t.clientX-rect.left)*scaleX,my=(t.clientY-rect.top)*scaleY
+      const dist=Math.sqrt((mx-cx2)**2+(my-cy2)**2)
+      if(dist<innerR||dist>outerR)return
+      let angle=Math.atan2(my-cy2,mx-cx2)+Math.PI/2
+      if(angle<0)angle+=Math.PI*2
+      const dayInCycle=Math.round(angle/(Math.PI*2)*avg)
+      const hit=phaseData.find(p=>dayInCycle>=p.startOff&&dayInCycle<=p.endOff)
+        ||phaseData[phaseData.length-1]
+      ov.remove()
+      showPhaseModal({...PHASES[hit.key],key:hit.key,cycleDay:phase.cycleDay,cycleLength:avg})
+    },{passive:false})
   }
 
   document.getElementById('chart-close').addEventListener('click',()=>ov.remove())
