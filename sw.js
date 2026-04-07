@@ -1,4 +1,4 @@
-const CACHE = 'bloom-v1'
+const CACHE = 'bloom-v3'
 const ASSETS = [
   './',
   './index.html',
