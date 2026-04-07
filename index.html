@@ -602,20 +602,15 @@ function showCycleChartModal(phase,cycles,settings){
     <div class="sheet-title">🗓️ Cycle Overview</div>
     <p style="font-size:12px;color:var(--muted);text-align:center;margin:-4px 0 16px">Started ${fmtShort(last.startDate)} · ${avg}-day cycle</p>
 
-    <!-- Donut chart -->
+    <!-- Donut chart (canvas-based for max Safari compatibility) -->
     <div style="position:relative;width:200px;height:200px;margin:0 auto 22px">
-      <div style="width:200px;height:200px;border-radius:50%;background:conic-gradient(${stops})"></div>
-      <!-- Hole -->
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:112px;height:112px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+      <canvas id="cycle-donut" width="200" height="200" style="position:absolute;top:0;left:0;width:200px;height:200px"></canvas>
+      <!-- Centre hole label -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:110px;height:110px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none">
         <div style="font-size:26px">${phase.emoji}</div>
         <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1">${phase.name}</div>
         <div style="font-size:10px;color:var(--muted)">Day ${phase.cycleDay} of ${avg}</div>
       </div>
-      <!-- Today dot -->
-      <svg style="position:absolute;inset:0;pointer-events:none" viewBox="0 0 200 200">
-        <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="white" stroke="#333" stroke-width="2.5"/>
-        <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="#333"/>
-      </svg>
     </div>
 
     <!-- Phase rows -->
@@ -648,6 +643,35 @@ function showCycleChartModal(phase,cycles,settings){
 
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
   document.body.appendChild(ov)
+
+  // Draw donut on canvas (Safari-safe, no conic-gradient needed)
+  const canvas=document.getElementById('cycle-donut')
+  if(canvas){
+    const ctx=canvas.getContext('2d')
+    const cx2=100,cy2=100,outerR=96,innerR=56,gap=0.018
+    let startAngle=-Math.PI/2
+    phaseData.forEach(p=>{
+      const sweep=(p.days/avg)*Math.PI*2
+      ctx.beginPath()
+      ctx.moveTo(cx2+outerR*Math.cos(startAngle+gap),cy2+outerR*Math.sin(startAngle+gap))
+      ctx.arc(cx2,cy2,outerR,startAngle+gap,startAngle+sweep-gap)
+      ctx.arc(cx2,cy2,innerR,startAngle+sweep-gap,startAngle+gap,true)
+      ctx.closePath()
+      ctx.fillStyle=p.color
+      ctx.fill()
+      startAngle+=sweep
+    })
+    // Today dot
+    const dotAngle=((phase.cycleDay-1)/avg)*Math.PI*2-Math.PI/2
+    const dotR2=(outerR+innerR)/2
+    const dx=cx2+dotR2*Math.cos(dotAngle),dy=cy2+dotR2*Math.sin(dotAngle)
+    ctx.beginPath();ctx.arc(dx,dy,7,0,Math.PI*2)
+    ctx.fillStyle='#fff';ctx.fill()
+    ctx.strokeStyle='#333';ctx.lineWidth=2.5;ctx.stroke()
+    ctx.beginPath();ctx.arc(dx,dy,3,0,Math.PI*2)
+    ctx.fillStyle='#333';ctx.fill()
+  }
+
   document.getElementById('chart-close').addEventListener('click',()=>ov.remove())
   ov.querySelectorAll('[data-phase-key]').forEach(el=>el.addEventListener('click',()=>{
     ov.remove()
