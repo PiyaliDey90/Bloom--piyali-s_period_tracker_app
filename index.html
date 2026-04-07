@@ -1134,6 +1134,22 @@ function renderSettings(){
       ${!window.navigator.standalone?`<p style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px">On iPhone, notifications require adding Bloom to your Home Screen first.</p>`:''}
     </div>
     <div class="card">
+      <div class="settings-section">Cycle History</div>
+      ${cycles.length===0?`<p style="font-size:13px;color:var(--muted)">No cycles logged yet.</p>`:
+        [...cycles].filter(c=>c.startDate).sort((a,b)=>b.startDate.localeCompare(a.startDate)).map(c=>{
+          const pLen=c.endDate?daysBetween(c.startDate,c.endDate)+1:null
+          return`<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--period-color);flex-shrink:0"></span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">${fmtShort(c.startDate)}${c.endDate?' – '+fmtShort(c.endDate):' (ongoing)'}</div>
+              <div style="font-size:11px;color:var(--muted)">${pLen?pLen+' day period':'No end date logged'}</div>
+            </div>
+            <button class="icon-btn icon-btn-edit" data-edit-cycle="${c.id}" style="font-size:14px">✏️</button>
+            <button class="icon-btn icon-btn-del" data-del-cycle="${c.id}" style="font-size:14px">🗑️</button>
+          </div>`}).join('')}
+      <button class="btn btn-secondary" id="add-cycle-btn" style="margin-top:12px;width:100%">+ Log past period</button>
+    </div>
+    <div class="card">
       <div class="settings-section">Data</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:12px">${cycles.length} cycles · ${syms.length} symptom entries · ${meds.length} medications · ${tests.length} blood tests</p>
       <button class="btn btn-secondary" id="export-btn" style="margin-bottom:8px">Export all data (JSON)</button>
@@ -1197,6 +1213,50 @@ function renderSettings(){
     if(!confirm('Delete ALL data permanently?'))return
     ['pt_cycles','pt_symptoms','pt_settings','pt_meds','pt_medlogs','pt_blood'].forEach(k=>localStorage.removeItem(k))
     location.reload()
+  })
+  document.getElementById('add-cycle-btn').addEventListener('click',()=>showCycleEditModal(null,renderSettings))
+  document.querySelectorAll('[data-edit-cycle]').forEach(btn=>btn.addEventListener('click',()=>{
+    const c=DB.cycles.find(x=>x.id===btn.dataset.editCycle);if(c)showCycleEditModal(c,renderSettings)
+  }))
+  document.querySelectorAll('[data-del-cycle]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!confirm('Delete this cycle?'))return
+    DB.saveCycles(DB.cycles.filter(c=>c.id!==btn.dataset.delCycle));renderSettings()
+  }))
+}
+
+function showCycleEditModal(cycle,onSave){
+  const today=todayISO(),ov=document.createElement('div');ov.className='overlay'
+  const fmtDisplay=iso=>iso?parseISO(iso).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'—'
+  ov.innerHTML=`<div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">${cycle?'Edit Cycle':'Log Past Period'}</div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">Enter the exact start and end dates.</p>
+    <div class="form-group"><label>Start date</label><input type="date" id="ce-start" class="form-input" value="${cycle?.startDate||''}" max="${today}"></div>
+    <div id="ce-start-preview" style="font-size:12px;color:var(--pink-dark);text-align:center;margin:-6px 0 10px;font-weight:600">${cycle?.startDate?'Start: '+fmtDisplay(cycle.startDate):'No date selected'}</div>
+    <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="ce-end" class="form-input" value="${cycle?.endDate||''}" max="${today}"></div>
+    <div id="ce-end-preview" style="font-size:12px;color:var(--muted);text-align:center;margin:-6px 0 10px">${cycle?.endDate?'End: '+fmtDisplay(cycle.endDate):''}</div>
+    <div id="ce-error" class="form-error" style="display:none"></div>
+    <button class="btn btn-primary" id="ce-save" style="margin-bottom:8px">Save</button>
+    <button class="btn btn-secondary" id="ce-cancel">Cancel</button>
+  </div>`
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('ce-cancel').addEventListener('click',()=>ov.remove())
+  document.getElementById('ce-start').addEventListener('change',e=>{document.getElementById('ce-start-preview').textContent=e.target.value?'Start: '+fmtDisplay(e.target.value):'No date selected'})
+  document.getElementById('ce-end').addEventListener('change',e=>{document.getElementById('ce-end-preview').textContent=e.target.value?'End: '+fmtDisplay(e.target.value):''})
+  document.getElementById('ce-save').addEventListener('click',()=>{
+    const start=document.getElementById('ce-start').value,end=document.getElementById('ce-end').value,err=document.getElementById('ce-error')
+    if(!start){err.style.display='block';err.textContent='Start date is required';return}
+    if(end&&end<start){err.style.display='block';err.textContent='End date must be after start date';return}
+    if(start>today){err.style.display='block';err.textContent='Date cannot be in the future';return}
+    if(cycle){
+      DB.saveCycles(DB.cycles.map(x=>x.id===cycle.id?{...x,startDate:start,endDate:end||null}:x))
+    }else{
+      const c=[...DB.cycles]
+      c.unshift({id:crypto.randomUUID(),startDate:start,endDate:end||null,notes:''})
+      DB.saveCycles(c)
+    }
+    ov.remove();onSave()
   })
 }
 
