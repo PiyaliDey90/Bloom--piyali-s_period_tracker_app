@@ -576,25 +576,34 @@ function showPhaseModal(phase){
 function showLogModal(){
   const cycles=DB.cycles,active=cycles.find(c=>!c.endDate)||null,today=todayISO()
   const ov=document.createElement('div');ov.className='overlay'
+  const fmtDisplay=iso=>iso?parseISO(iso).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'—'
   ov.innerHTML=active?`<div class="sheet">
-    <div class="sheet-handle"></div><div class="sheet-title">Update Period</div>
-    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:14px">Period started <strong>${active.startDate}</strong></p>
+    <div class="sheet-handle"></div><div class="sheet-title">End Period</div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:14px">Period started <strong>${fmtDisplay(active.startDate)}</strong></p>
     <div class="form-group"><label>End date</label><input type="date" id="end-date" class="form-input" value="${today}" max="${today}"></div>
+    <div id="end-preview" style="font-size:12px;color:var(--pink-dark);text-align:center;margin:-6px 0 10px;font-weight:600">Ending: ${fmtDisplay(today)}</div>
     <button class="btn btn-primary" id="end-btn" style="margin-bottom:8px">Mark period ended</button>
     <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
   </div>`:`<div class="sheet">
     <div class="sheet-handle"></div><div class="sheet-title">Log Period</div>
-    <div class="form-group"><label>Start date</label><input type="date" id="start-date" class="form-input" value="${today}" max="${today}"></div>
-    <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="end-date" class="form-input" max="${today}"></div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px;line-height:1.5">Pick the exact dates — even if it was days ago.</p>
+    <div class="form-group"><label>Start date</label><input type="date" id="start-date" class="form-input" max="${today}"></div>
+    <div id="start-preview" style="font-size:12px;color:var(--pink-dark);text-align:center;margin:-6px 0 10px;font-weight:600">No date selected yet</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn btn-secondary" id="today-btn" style="flex:1;font-size:13px">Started today</button>
+      <button class="btn btn-secondary" id="yest-btn" style="flex:1;font-size:13px">Yesterday</button>
+    </div>
+    <div class="form-group"><label>End date <span class="optional">(optional — can add later)</span></label><input type="date" id="end-date" class="form-input" max="${today}"></div>
+    <div id="end-preview2" style="font-size:12px;color:var(--muted);text-align:center;margin:-6px 0 10px"></div>
     <div id="form-error" class="form-error" style="display:none"></div>
     <button class="btn btn-primary" id="save-btn" style="margin-bottom:8px">Save</button>
-    <button class="btn btn-secondary" id="today-btn" style="margin-bottom:8px">Started today</button>
     <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
   </div>`
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
   document.body.appendChild(ov)
   document.getElementById('cancel-btn').addEventListener('click',()=>ov.remove())
   if(active){
+    document.getElementById('end-date').addEventListener('change',e=>{document.getElementById('end-preview').textContent='Ending: '+fmtDisplay(e.target.value)})
     document.getElementById('end-btn').addEventListener('click',()=>{
       const end=document.getElementById('end-date').value||today
       const c=[...DB.cycles];const i=c.findIndex(x=>!x.endDate)
@@ -602,11 +611,17 @@ function showLogModal(){
       ov.remove();renderHome()
     })
   }else{
-    document.getElementById('today-btn').addEventListener('click',()=>{document.getElementById('start-date').value=today;document.getElementById('end-date').value=''})
+    const startIn=document.getElementById('start-date'),endIn=document.getElementById('end-date')
+    const yesterday=toISO(new Date(new Date().setDate(new Date().getDate()-1)))
+    startIn.addEventListener('change',e=>{document.getElementById('start-preview').textContent=e.target.value?'Start: '+fmtDisplay(e.target.value):'No date selected yet'})
+    endIn.addEventListener('change',e=>{document.getElementById('end-preview2').textContent=e.target.value?'End: '+fmtDisplay(e.target.value):''})
+    document.getElementById('today-btn').addEventListener('click',()=>{startIn.value=today;endIn.value='';document.getElementById('start-preview').textContent='Start: '+fmtDisplay(today);document.getElementById('end-preview2').textContent=''})
+    document.getElementById('yest-btn').addEventListener('click',()=>{startIn.value=yesterday;endIn.value='';document.getElementById('start-preview').textContent='Start: '+fmtDisplay(yesterday);document.getElementById('end-preview2').textContent=''})
     document.getElementById('save-btn').addEventListener('click',()=>{
-      const start=document.getElementById('start-date').value,end=document.getElementById('end-date').value,err=document.getElementById('form-error')
-      if(!start){err.style.display='block';err.textContent='Please enter a start date';return}
+      const start=startIn.value,end=endIn.value,err=document.getElementById('form-error')
+      if(!start){err.style.display='block';err.textContent='Please select a start date';return}
       if(end&&end<start){err.style.display='block';err.textContent='End date must be after start date';return}
+      if(start>today){err.style.display='block';err.textContent='Start date cannot be in the future';return}
       const c=[...DB.cycles];const ei=c.findIndex(x=>!x.endDate)
       if(ei>=0)c[ei]={...c[ei],endDate:start}
       c.unshift({id:crypto.randomUUID(),startDate:start,endDate:end||null,notes:''})
