@@ -1,70 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Bloom" />
-  <meta name="theme-color" content="#c97baa" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-  <title>Bloom — Period Tracker</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="Bloom"/>
+  <meta name="theme-color" content="#c97baa"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <title>Bloom — Health Tracker</title>
   <style>
-    :root {
-      --pink:#c97baa; --pink-light:#f0c4df; --pink-dark:#9e5080;
-      --purple:#9b7ec8; --purple-light:#d8cff0;
-      --bg:#fdf0f6; --surface:#ffffff; --surface-alt:#f9e8f3; --border:#e8c8de;
-      --text:#3d2040; --muted:#8a607a; --white:#ffffff;
-      --period-color:#e8648c; --period-bg:#fde8ef;
-      --fertile-color:#b090e0; --fertile-bg:#ede8f8;
-      --predicted:#f4aec8; --ovulation:#7a4fbf;
-      --green:#4caf7d; --blue:#5b8fd6;
+    :root{
+      --pink:#c97baa;--pink-light:#f0c4df;--pink-dark:#9e5080;
+      --purple:#9b7ec8;--purple-light:#d8cff0;
+      --bg:#fdf0f6;--surface:#fff;--surface-alt:#f9e8f3;--border:#e8c8de;
+      --text:#3d2040;--muted:#8a607a;--white:#fff;
+      --period-color:#e8648c;--period-bg:#fde8ef;
+      --fertile-color:#b090e0;--fertile-bg:#ede8f8;
+      --predicted:#f4aec8;--ovulation:#7a4fbf;
+      --green:#4caf7d;--blue:#5b8fd6;--orange:#e07c3a;--red:#e84848;
       --shadow:0 2px 12px rgba(201,123,170,.12);
       --shadow-lg:0 8px 40px rgba(61,32,64,.2);
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --safe-top:env(safe-area-inset-top,0px);
-      --nav-h:64px;
-      --r-sm:6px; --r-md:12px; --r-lg:20px; --r-full:9999px;
+      --nav-h:60px;
+      --r-sm:6px;--r-md:12px;--r-lg:20px;--r-full:9999px;
       --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
-    @media (prefers-color-scheme:dark) {
-      :root { --bg:#1e0f1a; --surface:#2d1a28; --surface-alt:#3a2235; --border:#5a3050; --text:#f0d8ea; --muted:#c09ab0; }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#1e0f1a;--surface:#2d1a28;--surface-alt:#3a2235;--border:#5a3050;--text:#f0d8ea;--muted:#c09ab0;}
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;font-family:var(--font);color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
     button{font-family:inherit;cursor:pointer;border:none;background:none}
     input,textarea,select{font-family:inherit;font-size:15px;color:var(--text)}
 
-    #app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
-    #content{flex:1;overflow-y:auto;padding:16px;padding-top:calc(var(--safe-top) + 16px);padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 24px)}
+    #app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;overflow:hidden}
+    #content{flex:1;overflow-y:auto;padding:16px;padding-top:calc(var(--safe-top)+16px);padding-bottom:calc(var(--nav-h)+var(--safe-bottom)+24px)}
 
-    /* Nav */
-    .nav{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--surface);border-top:1px solid var(--border);z-index:100}
-    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);padding-top:8px;cursor:pointer;transition:color .15s}
+    /* ── Nav ── */
+    .nav{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--nav-h)+var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--surface);border-top:1px solid var(--border);z-index:100}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--muted);padding-top:6px;cursor:pointer;transition:color .15s}
     .nav-item.active{color:var(--pink)}
-    .nav-icon{font-size:20px;line-height:1}
-    .nav-label{font-size:10px;font-weight:500}
+    .nav-icon{font-size:18px;line-height:1}
+    .nav-label{font-size:9px;font-weight:600}
 
-    /* Shared */
-    .page-title{font-size:24px;font-weight:700;margin-bottom:20px}
-    .card{background:var(--surface);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+    /* ── Shared ── */
+    .page-title{font-size:22px;font-weight:700;margin-bottom:16px}
+    .card{background:var(--surface);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
     .btn{border-radius:var(--r-full);padding:12px 24px;font-size:15px;font-weight:600;width:100%;transition:opacity .15s}
     .btn:active{opacity:.8}
     .btn-primary{background:var(--pink);color:var(--white)}
     .btn-secondary{background:var(--surface-alt);color:var(--pink-dark)}
     .btn-danger{background:#fde8ef;color:#e8648c}
+    .btn-green{background:#e6f7ef;color:#2e7d55}
     .btn-saved{background:var(--green)!important;color:white!important}
-    .section-label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
-    .form-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-alt);color:var(--text);font-size:15px}
+    .section-label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px}
+    .form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-alt);color:var(--text);font-size:15px}
     .form-input:focus{outline:none;border-color:var(--pink)}
-    .form-error{color:#e8648c;font-size:13px;margin-bottom:12px}
+    .form-error{color:#e8648c;font-size:13px;margin-bottom:10px}
     .chip-row{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{border:1.5px solid var(--border);border-radius:var(--r-full);padding:8px 14px;font-size:13px;color:var(--muted);background:transparent;transition:all .15s;white-space:nowrap;cursor:pointer}
+    .chip{border:1.5px solid var(--border);border-radius:var(--r-full);padding:7px 13px;font-size:13px;color:var(--muted);background:transparent;transition:all .15s;white-space:nowrap;cursor:pointer}
     .chip.active{background:var(--pink);border-color:var(--pink);color:white}
+    .icon-btn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;cursor:pointer}
+    .icon-btn-edit{background:var(--purple-light);color:var(--ovulation)}
+    .icon-btn-del{background:#fde8ef;color:#e8648c}
+    .empty-state{text-align:center;padding:40px 16px;color:var(--muted)}
+    .empty-state .ei{font-size:44px;margin-bottom:10px}
+    .empty-state p{font-size:14px;line-height:1.6}
 
-    /* Dashboard */
-    .status-card{border-radius:var(--r-lg);padding:24px;margin-bottom:16px;text-align:center;transition:transform .1s}
+    /* ── Modal ── */
+    .overlay{position:fixed;inset:0;background:rgba(61,32,64,.4);display:flex;align-items:flex-end;z-index:200;animation:fadeIn .2s}
+    .sheet{width:100%;max-width:430px;margin:0 auto;background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:14px 18px calc(20px + var(--safe-bottom));box-shadow:var(--shadow-lg);animation:slideUp .25s ease;max-height:92vh;overflow-y:auto}
+    .sheet-handle{width:38px;height:4px;background:var(--border);border-radius:var(--r-full);margin:0 auto 16px}
+    .sheet-title{font-size:17px;font-weight:700;text-align:center;margin-bottom:16px}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px}
+    .optional{font-weight:400}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+    /* ── Home ── */
+    .status-card{border-radius:var(--r-lg);padding:22px;margin-bottom:14px;text-align:center;transition:transform .1s}
     .status-card.clickable{cursor:pointer}
     .status-card.clickable:active{transform:scale(.98)}
     .status-period{background:linear-gradient(135deg,#e8648c,#c97baa);color:white}
@@ -72,38 +90,34 @@
     .status-late{background:linear-gradient(135deg,#9b7ec8,#7a6eb0);color:white}
     .status-upcoming{background:linear-gradient(135deg,var(--surface-alt),var(--pink-light))}
     .status-neutral{background:var(--surface-alt)}
-    .status-label{font-size:22px;font-weight:700;margin-bottom:8px}
+    .status-label{font-size:20px;font-weight:700;margin-bottom:6px}
     .status-sub{font-size:13px;opacity:.85}
-    .fertile-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-    .fertile-dot{width:10px;height:10px;border-radius:50%;background:var(--purple);flex-shrink:0}
-    .fertile-title{font-size:13px;font-weight:600;color:var(--purple)}
-    .fertile-dates{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .ov-badge{background:var(--purple-light);color:var(--ovulation);border-radius:var(--r-full);padding:2px 12px;font-size:11px;font-weight:600}
-    .stats-row{display:flex;gap:10px;margin-bottom:16px}
-    .stat-pill{flex:1;background:var(--surface);border-radius:var(--r-md);padding:12px;text-align:center;box-shadow:var(--shadow)}
-    .stat-value{display:block;font-size:22px;font-weight:700;color:var(--pink)}
-    .stat-label{display:block;font-size:10px;color:var(--muted);margin-top:2px}
-    .install-banner{background:linear-gradient(135deg,var(--pink-light),var(--purple-light));border-radius:var(--r-md);padding:16px;margin-bottom:16px;font-size:13px;line-height:1.5}
-    .install-banner strong{display:block;margin-bottom:4px}
+    .stats-row{display:flex;gap:10px;margin-bottom:14px}
+    .stat-pill{flex:1;background:var(--surface);border-radius:var(--r-md);padding:11px;text-align:center;box-shadow:var(--shadow)}
+    .stat-value{display:block;font-size:20px;font-weight:700;color:var(--pink)}
+    .stat-label{display:block;font-size:9px;color:var(--muted);margin-top:2px}
+    .install-banner{background:linear-gradient(135deg,var(--pink-light),var(--purple-light));border-radius:var(--r-md);padding:14px;margin-bottom:14px;font-size:13px;line-height:1.5}
 
-    /* Modal */
-    .overlay{position:fixed;inset:0;background:rgba(61,32,64,.4);display:flex;align-items:flex-end;z-index:200;animation:fadeIn .2s}
-    .sheet{width:100%;max-width:430px;margin:0 auto;background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:16px 20px calc(24px + var(--safe-bottom));box-shadow:var(--shadow-lg);animation:slideUp .25s ease;max-height:90vh;overflow-y:auto}
-    .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:var(--r-full);margin:0 auto 20px}
-    .sheet-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px}
-    .form-group{margin-bottom:16px}
-    .form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
-    .optional{font-weight:400}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    /* ── Phase ── */
+    .phase-card{border-radius:var(--r-lg);padding:16px 18px;margin-bottom:14px;cursor:pointer;transition:transform .1s}
+    .phase-card:active{transform:scale(.98)}
+    .rec-item{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+    .rec-item:last-child{border-bottom:none}
+    .rec-emoji{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+    .rec-label{font-size:13px;font-weight:600;margin-bottom:2px}
+    .rec-reason{font-size:11px;color:var(--muted);line-height:1.4}
+    .avoid-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
+    .avoid-item:last-child{border-bottom:none}
+    .avoid-x{color:#e8648c;font-weight:700;font-size:15px;width:18px;flex-shrink:0}
+    .tip-box{background:var(--surface-alt);border-radius:var(--r-md);padding:12px;font-size:13px;line-height:1.6}
 
-    /* Calendar */
-    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    .cal-title{font-size:18px;font-weight:700}
-    .cal-nav{font-size:26px;color:var(--pink);padding:4px 12px}
-    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
-    .cal-dayname{text-align:center;font-size:11px;font-weight:600;color:var(--muted);padding:4px 0 8px}
-    .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;position:relative;font-size:13px;font-weight:500;transition:transform .1s}
+    /* ── Calendar ── */
+    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .cal-title{font-size:17px;font-weight:700}
+    .cal-nav{font-size:26px;color:var(--pink);padding:4px 10px}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+    .cal-dayname{text-align:center;font-size:10px;font-weight:600;color:var(--muted);padding:3px 0 7px}
+    .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;position:relative;font-size:12px;font-weight:500;transition:transform .1s}
     .cal-day:active{transform:scale(.9)}
     .cal-period{background:var(--period-bg);color:var(--period-color);font-weight:700}
     .cal-predicted{border:2px dashed var(--predicted)}
@@ -112,390 +126,335 @@
     .cal-today-ring{outline:2px solid var(--pink);outline-offset:1px}
     .cal-selected{outline:2.5px solid var(--pink-dark);outline-offset:1px}
     .cal-symdot{position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:var(--pink-dark)}
-    .cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
-    .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-    .legend-dot{width:10px;height:10px;border-radius:3px}
-    .day-detail{padding:16px}
-    .day-detail-date{font-weight:700;margin-bottom:12px;color:var(--pink-dark)}
-    .status-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    .sbadge{font-size:11px;font-weight:600;border-radius:var(--r-full);padding:2px 12px}
+    .cal-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;justify-content:center}
+    .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+    .legend-dot{width:9px;height:9px;border-radius:3px}
+    .sbadge{font-size:11px;font-weight:600;border-radius:var(--r-full);padding:2px 10px}
     .sbadge-period{background:var(--period-bg);color:var(--period-color)}
     .sbadge-predicted{background:var(--pink-light);color:var(--pink-dark)}
     .sbadge-fertile{background:var(--fertile-bg);color:var(--fertile-color)}
     .sbadge-ovulation{background:var(--purple-light);color:var(--ovulation)}
-    .detail-row{font-size:13px;color:var(--muted);margin-bottom:4px}
-    .detail-row b{color:var(--text)}
-    .detail-empty{font-size:13px;color:var(--muted)}
 
-    /* History */
-    .history-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-    .hstat{background:var(--surface);border-radius:var(--r-md);padding:16px;box-shadow:var(--shadow);text-align:center}
-    .hstat-val{font-size:26px;font-weight:700;color:var(--pink)}
-    .hstat-label{font-size:11px;color:var(--muted);margin-top:2px}
-    .cycle-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+    /* ── History ── */
+    .history-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .hstat{background:var(--surface);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow);text-align:center}
+    .hstat-val{font-size:24px;font-weight:700;color:var(--pink)}
+    .hstat-label{font-size:10px;color:var(--muted);margin-top:2px}
+    .cycle-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
     .cycle-item:last-child{border-bottom:none}
-    .cycle-dot{width:12px;height:12px;border-radius:50%;background:var(--period-color);flex-shrink:0}
-    .cycle-info{flex:1;min-width:0}
-    .cycle-dates{font-size:14px;font-weight:600}
-    .cycle-meta{font-size:12px;color:var(--muted);margin-top:2px}
-    .cycle-actions{display:flex;gap:8px}
-    .icon-btn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-    .icon-btn-edit{background:var(--purple-light);color:var(--ovulation)}
-    .icon-btn-del{background:#fde8ef;color:#e8648c}
-    .empty-state{text-align:center;padding:48px 16px;color:var(--muted)}
-    .empty-state .empty-icon{font-size:48px;margin-bottom:12px}
-    .empty-state p{font-size:14px;line-height:1.6}
+    .cycle-dot{width:10px;height:10px;border-radius:50%;background:var(--period-color);flex-shrink:0}
+    .cycle-dates{font-size:13px;font-weight:600}
+    .cycle-meta{font-size:11px;color:var(--muted);margin-top:2px}
 
-    /* Phase Card */
-    .phase-card{border-radius:var(--r-lg);padding:18px 20px;margin-bottom:16px;cursor:pointer;transition:transform .1s;position:relative;overflow:hidden}
-    .phase-card:active{transform:scale(.98)}
-    .phase-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-    .phase-badge{display:flex;align-items:center;gap:8px}
-    .phase-emoji{font-size:22px}
-    .phase-name{font-size:16px;font-weight:700}
-    .phase-day{font-size:12px;opacity:.75;font-weight:500}
-    .phase-desc{font-size:13px;opacity:.85;line-height:1.5;margin-bottom:12px}
-    .phase-quick-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-    .phase-chip{border-radius:var(--r-full);padding:4px 10px;font-size:11px;font-weight:600;opacity:.9}
-    .phase-cta{font-size:12px;font-weight:600;opacity:.7;text-align:right}
-    .phase-acne-alert{background:rgba(255,255,255,.25);border-radius:var(--r-md);padding:10px 12px;margin-top:10px;font-size:12px;line-height:1.5;font-weight:500}
-
-    /* Phase Modal */
-    .phase-modal-header{border-radius:var(--r-lg);padding:20px;margin-bottom:20px;text-align:center}
-    .phase-modal-emoji{font-size:40px;margin-bottom:8px}
-    .phase-modal-name{font-size:20px;font-weight:700;margin-bottom:4px}
-    .phase-modal-days{font-size:13px;opacity:.8}
-    .phase-modal-desc{font-size:14px;line-height:1.6;margin-bottom:4px;opacity:.9}
-    .phase-section-title{font-size:14px;font-weight:700;color:var(--pink-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-    .rec-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-    .rec-item:last-child{border-bottom:none}
-    .rec-emoji{font-size:22px;flex-shrink:0;width:32px;text-align:center}
-    .rec-label{font-size:14px;font-weight:600;margin-bottom:2px}
-    .rec-reason{font-size:12px;color:var(--muted);line-height:1.4}
-    .avoid-list{display:flex;flex-direction:column;gap:8px}
-    .avoid-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
-    .avoid-item:last-child{border-bottom:none}
-    .avoid-x{color:#e8648c;font-weight:700;font-size:16px;width:20px;flex-shrink:0}
-    .tip-box{background:var(--surface-alt);border-radius:var(--r-md);padding:14px;font-size:13px;line-height:1.6;color:var(--text);margin-top:4px}
-    .acne-box{border-radius:var(--r-md);padding:14px;font-size:13px;line-height:1.6;margin-top:4px;border:2px solid rgba(232,100,140,.3)}
-
-    /* Log extras */
-    .water-row{display:flex;align-items:center;gap:16px}
-    .water-count{font-size:28px;font-weight:700;color:var(--blue);min-width:32px;text-align:center}
-    .water-btn{width:36px;height:36px;border-radius:50%;background:var(--purple-light);color:var(--purple);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
+    /* ── Log ── */
+    .water-row{display:flex;align-items:center;gap:14px}
+    .water-count{font-size:26px;font-weight:700;color:var(--blue);min-width:28px;text-align:center}
+    .water-btn{width:34px;height:34px;border-radius:50%;background:var(--purple-light);color:var(--purple);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
     .water-btn:active{background:var(--purple);color:white}
-    .weight-row{display:flex;align-items:center;gap:12px}
-    .weight-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-alt);color:var(--text);font-size:16px}
-    .weight-unit{font-size:13px;color:var(--muted);font-weight:600}
 
-    /* Settings */
-    .settings-section{font-size:15px;font-weight:700;color:var(--pink-dark);margin-bottom:16px}
-    .stepper-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+    /* ── Health (Blood Work) ── */
+    .bw-marker-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+    .bw-marker-row:last-child{border-bottom:none}
+    .bw-marker-name{flex:1;font-size:13px;font-weight:600}
+    .bw-marker-val{font-size:13px;font-weight:700}
+    .bw-marker-range{font-size:10px;color:var(--muted);margin-top:1px}
+    .flag{font-size:11px;font-weight:700;border-radius:var(--r-full);padding:2px 8px}
+    .flag-low{background:#fde8ef;color:#c0264a}
+    .flag-high{background:#fef3e2;color:#8a5500}
+    .flag-ok{background:#e6f7ef;color:#2e7d55}
+    .trend-bar{height:6px;border-radius:3px;background:var(--border);margin-top:6px;overflow:hidden}
+    .trend-fill{height:100%;border-radius:3px;transition:width .4s}
+    .insight-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .insight-row:last-child{border-bottom:none}
+    .insight-emoji{font-size:20px;flex-shrink:0}
+    .insight-text{font-size:13px;line-height:1.5}
+    .insight-text b{color:var(--text)}
+    .photo-thumb{width:60px;height:60px;border-radius:var(--r-md);object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid var(--border)}
+    .test-card{border-left:3px solid var(--pink)}
+
+    /* ── Meds ── */
+    .med-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+    .med-item:last-child{border-bottom:none}
+    .med-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px;transition:all .2s}
+    .med-check.done{background:var(--green);border-color:var(--green);color:white}
+    .med-check.missed{background:#fde8ef;border-color:#e8648c;color:#e8648c}
+    .med-name{font-size:14px;font-weight:600;flex:1}
+    .med-dose{font-size:12px;color:var(--muted);margin-top:1px}
+    .med-time{font-size:11px;background:var(--surface-alt);color:var(--pink-dark);border-radius:var(--r-full);padding:2px 8px;font-weight:600;white-space:nowrap}
+    .refill-warn{background:#fef3e2;border-radius:var(--r-md);padding:10px 14px;font-size:12px;color:#8a5500;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+
+    /* ── Settings ── */
+    .settings-section{font-size:14px;font-weight:700;color:var(--pink-dark);margin-bottom:14px}
+    .stepper-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
     .stepper-row:last-child{border-bottom:none}
     .stepper-label{font-size:13px}
-    .stepper-controls{display:flex;align-items:center;gap:12px}
-    .stepper-btn{width:32px;height:32px;border-radius:50%;background:var(--pink-light);color:var(--pink-dark);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .stepper-controls{display:flex;align-items:center;gap:10px}
+    .stepper-btn{width:30px;height:30px;border-radius:50%;background:var(--pink-light);color:var(--pink-dark);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center}
     .stepper-btn:active{background:var(--pink);color:white}
-    .stepper-val{font-size:18px;font-weight:700;min-width:28px;text-align:center;color:var(--pink)}
-    .toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .stepper-val{font-size:17px;font-weight:700;min-width:26px;text-align:center;color:var(--pink)}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .toggle-label{font-size:13px;font-weight:600}
     .toggle-sub{font-size:11px;color:var(--muted);margin-top:2px}
-    .toggle-btn{background:var(--border);color:var(--muted);border-radius:var(--r-full);padding:8px 16px;font-size:13px;font-weight:700}
+    .toggle-btn{background:var(--border);color:var(--muted);border-radius:var(--r-full);padding:7px 14px;font-size:13px;font-weight:700}
     .toggle-btn.on{background:var(--pink);color:white}
-    .notif-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:12px}
-    .data-info{font-size:13px;color:var(--muted);margin-bottom:16px}
-    .about-block{text-align:center;padding:24px 16px;color:var(--muted);font-size:13px;line-height:2}
-    .custom-sym-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-    .custom-sym-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface-alt);border-radius:var(--r-md);padding:10px 14px}
-    .custom-sym-name{font-size:14px}
     .add-sym-row{display:flex;gap:8px}
-    .add-sym-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-alt);color:var(--text);font-size:14px}
+    .add-sym-input{flex:1;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-alt);color:var(--text);font-size:14px}
     .add-sym-input:focus{outline:none;border-color:var(--pink)}
-    .add-sym-btn{background:var(--pink);color:white;border-radius:var(--r-md);padding:10px 16px;font-size:14px;font-weight:600;white-space:nowrap}
+    .add-sym-btn{background:var(--pink);color:white;border-radius:var(--r-md);padding:9px 14px;font-size:14px;font-weight:600}
+    .about-block{text-align:center;padding:20px 16px;color:var(--muted);font-size:12px;line-height:2}
   </style>
 </head>
 <body>
 <div id="app">
   <div id="content"></div>
   <nav class="nav">
-    <div class="nav-item active" data-page="home">
-      <span class="nav-icon">🌸</span><span class="nav-label">Home</span>
-    </div>
-    <div class="nav-item" data-page="calendar">
-      <span class="nav-icon">📅</span><span class="nav-label">Calendar</span>
-    </div>
-    <div class="nav-item" data-page="log">
-      <span class="nav-icon">✏️</span><span class="nav-label">Log</span>
-    </div>
-    <div class="nav-item" data-page="history">
-      <span class="nav-icon">📊</span><span class="nav-label">History</span>
-    </div>
-    <div class="nav-item" data-page="settings">
-      <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
-    </div>
+    <div class="nav-item active" data-page="home"><span class="nav-icon">🌸</span><span class="nav-label">Home</span></div>
+    <div class="nav-item" data-page="calendar"><span class="nav-icon">📅</span><span class="nav-label">Calendar</span></div>
+    <div class="nav-item" data-page="log"><span class="nav-icon">✏️</span><span class="nav-label">Log</span></div>
+    <div class="nav-item" data-page="meds"><span class="nav-icon">💊</span><span class="nav-label">Meds</span></div>
+    <div class="nav-item" data-page="health"><span class="nav-icon">🩺</span><span class="nav-label">Health</span></div>
+    <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></div>
   </nav>
 </div>
-
 <script>
-// ── Data Layer ───────────────────────────────────────────────────────────────
-const DB = {
-  get cycles()  { try{return JSON.parse(localStorage.getItem('pt_cycles')||'[]')}catch{return[]} },
-  get symptoms(){ try{return JSON.parse(localStorage.getItem('pt_symptoms')||'[]')}catch{return[]} },
+// ── Data Layer ────────────────────────────────────────────────────────────────
+const DB={
+  get cycles(){try{return JSON.parse(localStorage.getItem('pt_cycles')||'[]')}catch{return[]}},
+  get symptoms(){try{return JSON.parse(localStorage.getItem('pt_symptoms')||'[]')}catch{return[]}},
+  get meds(){try{return JSON.parse(localStorage.getItem('pt_meds')||'[]')}catch{return[]}},
+  get medLogs(){try{return JSON.parse(localStorage.getItem('pt_medlogs')||'{}')}catch{return{}}},
+  get bloodTests(){try{return JSON.parse(localStorage.getItem('pt_blood')||'[]')}catch{return[]}},
   get settings(){
-    try{
-      return {
-        averageCycleLength:28, averagePeriodLength:5,
-        notificationsEnabled:false, reminderDaysBefore:2,
-        weightUnit:'kg', customSymptoms:[],
-        ...JSON.parse(localStorage.getItem('pt_settings')||'{}')
-      }
-    }catch{return{averageCycleLength:28,averagePeriodLength:5,notificationsEnabled:false,reminderDaysBefore:2,weightUnit:'kg',customSymptoms:[]}}
+    try{return{averageCycleLength:28,averagePeriodLength:5,notificationsEnabled:false,reminderDaysBefore:2,weightUnit:'kg',customSymptoms:[],userSupplements:[],...JSON.parse(localStorage.getItem('pt_settings')||'{}')}}
+    catch{return{averageCycleLength:28,averagePeriodLength:5,notificationsEnabled:false,reminderDaysBefore:2,weightUnit:'kg',customSymptoms:[],userSupplements:[]}}
   },
-  saveCycles(v)   { localStorage.setItem('pt_cycles',   JSON.stringify(v)) },
-  saveSymptoms(v) { localStorage.setItem('pt_symptoms', JSON.stringify(v)) },
-  saveSettings(v) { localStorage.setItem('pt_settings', JSON.stringify(v)) },
-  updateSetting(k,v){ const s=this.settings; s[k]=v; this.saveSettings(s) }
+  saveCycles(v){localStorage.setItem('pt_cycles',JSON.stringify(v))},
+  saveSymptoms(v){localStorage.setItem('pt_symptoms',JSON.stringify(v))},
+  saveMeds(v){localStorage.setItem('pt_meds',JSON.stringify(v))},
+  saveMedLogs(v){localStorage.setItem('pt_medlogs',JSON.stringify(v))},
+  saveBloodTests(v){localStorage.setItem('pt_blood',JSON.stringify(v))},
+  saveSettings(v){localStorage.setItem('pt_settings',JSON.stringify(v))},
+  updateSetting(k,v){const s=this.settings;s[k]=v;this.saveSettings(s)}
 }
 
-// ── Date Utilities ────────────────────────────────────────────────────────────
-function todayISO(){ return toISO(new Date()) }
-function toISO(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}` }
-function pad(n){ return String(n).padStart(2,'0') }
-function parseISO(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d) }
-function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r }
-function daysBetween(a,b){ return Math.round((parseISO(b)-parseISO(a))/86400000) }
-function daysUntil(iso){ return daysBetween(todayISO(),iso) }
-function isInRange(d,s,e){ return d>=s && d<=e }
-function fmtShort(iso){ return parseISO(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'}) }
-function fmtMonthYear(y,m){ return new Date(y,m,1).toLocaleDateString('en-US',{month:'long',year:'numeric'}) }
-function getDaysInMonth(y,m){ const days=[],d=new Date(y,m,1); while(d.getMonth()===m){days.push(toISO(d));d.setDate(d.getDate()+1)} return days }
-function firstDayOfMonth(y,m){ return new Date(y,m,1).getDay() }
+// ── Date Utils ────────────────────────────────────────────────────────────────
+const todayISO=()=>toISO(new Date())
+const toISO=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+const pad=n=>String(n).padStart(2,'0')
+const parseISO=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+const addDays=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r}
+const daysBetween=(a,b)=>Math.round((parseISO(b)-parseISO(a))/86400000)
+const daysUntil=iso=>daysBetween(todayISO(),iso)
+const isInRange=(d,s,e)=>d>=s&&d<=e
+const fmtShort=iso=>parseISO(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+const fmtMonthYear=(y,m)=>new Date(y,m,1).toLocaleDateString('en-US',{month:'long',year:'numeric'})
+function getDaysInMonth(y,m){const days=[],d=new Date(y,m,1);while(d.getMonth()===m){days.push(toISO(d));d.setDate(d.getDate()+1)}return days}
+const firstDayOfMonth=(y,m)=>new Date(y,m,1).getDay()
 
-// ── Algorithms ────────────────────────────────────────────────────────────────
+// ── Cycle Algorithms ──────────────────────────────────────────────────────────
 function avgCycleLength(cycles,fallback=28){
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
-  if(sorted.length<2) return fallback
-  const recent=sorted.slice(-7), lens=[]
+  if(sorted.length<2)return fallback
+  const recent=sorted.slice(-7),lens=[]
   for(let i=1;i<recent.length;i++){const d=daysBetween(recent[i-1].startDate,recent[i].startDate);if(d>=15&&d<=60)lens.push(d)}
-  if(!lens.length) return fallback
-  return Math.round(lens.reduce((a,b)=>a+b,0)/lens.length)
+  return lens.length?Math.round(lens.reduce((a,b)=>a+b,0)/lens.length):fallback
 }
-
 function predictNext(cycles,settings){
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
-  const last=sorted[sorted.length-1]; if(!last) return null
+  const last=sorted[sorted.length-1];if(!last)return null
   const avg=avgCycleLength(cycles,settings.averageCycleLength)
   const start=addDays(parseISO(last.startDate),avg)
-  return { predictedStart:toISO(start), predictedEnd:toISO(addDays(new Date(start),settings.averagePeriodLength-1)), confidence:sorted.length>=3?'high':'low' }
+  return{predictedStart:toISO(start),predictedEnd:toISO(addDays(new Date(start),settings.averagePeriodLength-1)),confidence:sorted.length>=3?'high':'low'}
 }
-
 function fertileWindow(cycles,settings){
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
-  const last=sorted[sorted.length-1]; if(!last) return null
+  const last=sorted[sorted.length-1];if(!last)return null
   const avg=avgCycleLength(cycles,settings.averageCycleLength)
   const ov=addDays(parseISO(last.startDate),avg-14)
-  return { fertileStart:toISO(addDays(ov,-5)), fertileEnd:toISO(addDays(ov,1)), ovulationDate:toISO(ov) }
+  return{fertileStart:toISO(addDays(ov,-5)),fertileEnd:toISO(addDays(ov,1)),ovulationDate:toISO(ov)}
 }
-
 function getDayStatus(iso,cycles,pred,fert){
   const s=[]
   for(const c of cycles){if(isInRange(iso,c.startDate,c.endDate||c.startDate)){s.push('period');break}}
-  if(!s.includes('period')&&pred&&isInRange(iso,pred.predictedStart,pred.predictedEnd)) s.push('predicted')
+  if(!s.includes('period')&&pred&&isInRange(iso,pred.predictedStart,pred.predictedEnd))s.push('predicted')
   if(fert){if(iso===fert.ovulationDate)s.push('ovulation');else if(isInRange(iso,fert.fertileStart,fert.fertileEnd))s.push('fertile')}
   return s
 }
-
 function cycleStats(cycles){
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>a.startDate.localeCompare(b.startDate))
-  const lengths=[], periodLengths=[]
-  for(let i=1;i<sorted.length;i++){
-    const d=daysBetween(sorted[i-1].startDate,sorted[i].startDate)
-    if(d>=15&&d<=60) lengths.push(d)
-  }
-  for(const c of sorted){
-    if(c.endDate) periodLengths.push(daysBetween(c.startDate,c.endDate)+1)
-  }
-  return {
-    total: sorted.length,
-    avg: lengths.length ? Math.round(lengths.reduce((a,b)=>a+b,0)/lengths.length) : null,
-    shortest: lengths.length ? Math.min(...lengths) : null,
-    longest:  lengths.length ? Math.max(...lengths) : null,
-    avgPeriod: periodLengths.length ? Math.round(periodLengths.reduce((a,b)=>a+b,0)/periodLengths.length*10)/10 : null
-  }
+  const lengths=[],plen=[]
+  for(let i=1;i<sorted.length;i++){const d=daysBetween(sorted[i-1].startDate,sorted[i].startDate);if(d>=15&&d<=60)lengths.push(d)}
+  for(const c of sorted){if(c.endDate)plen.push(daysBetween(c.startDate,c.endDate)+1)}
+  return{total:sorted.length,avg:lengths.length?Math.round(lengths.reduce((a,b)=>a+b,0)/lengths.length):null,shortest:lengths.length?Math.min(...lengths):null,longest:lengths.length?Math.max(...lengths):null,avgPeriod:plen.length?Math.round(plen.reduce((a,b)=>a+b,0)/plen.length*10)/10:null}
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const SYMPTOMS=[
-  {id:'cramps',label:'Cramps',emoji:'😣'},{id:'bloating',label:'Bloating',emoji:'🫧'},
-  {id:'headache',label:'Headache',emoji:'🤕'},{id:'backache',label:'Backache',emoji:'🔩'},
-  {id:'nausea',label:'Nausea',emoji:'🤢'},{id:'fatigue',label:'Fatigue',emoji:'😴'},
-  {id:'acne',label:'Acne',emoji:'🧴'},{id:'tender',label:'Breast pain',emoji:'💗'},
-  {id:'cravings',label:'Cravings',emoji:'🍫'},{id:'spotting',label:'Spotting',emoji:'🩸'}
-]
-const MOODS=[
-  {id:'happy',label:'Happy',emoji:'😊'},{id:'calm',label:'Calm',emoji:'😌'},
-  {id:'sensitive',label:'Sensitive',emoji:'🥺'},{id:'irritable',label:'Irritable',emoji:'😤'},
-  {id:'anxious',label:'Anxious',emoji:'😰'},{id:'sad',label:'Sad',emoji:'😢'},
-  {id:'energetic',label:'Energetic',emoji:'⚡'},{id:'tired',label:'Tired',emoji:'😩'}
-]
-const FLOWS=[{id:'spotting',label:'Spotting'},{id:'light',label:'Light'},{id:'medium',label:'Medium'},{id:'heavy',label:'Heavy'},{id:'none',label:'None'}]
-
-// ── Cycle Phases ─────────────────────────────────────────────────────────────
-const PHASES = {
-  menstrual: {
-    name:'Menstrual Phase', emoji:'🩸', days:'Day 1–5',
-    color:'#e8648c', bg:'#fde8ef', textColor:'#c0264a',
-    desc:'Your body is shedding the uterine lining. Focus on rest, warmth, and replenishing lost nutrients.',
-    foods:[
-      {emoji:'🥬',label:'Spinach & leafy greens',reason:'Replace iron lost during bleeding'},
-      {emoji:'🐟',label:'Salmon & sardines',reason:'Omega-3 reduces cramps and inflammation'},
-      {emoji:'🫚',label:'Ginger & turmeric',reason:'Natural anti-inflammatories, soothe cramps'},
-      {emoji:'🍫',label:'Dark chocolate (70%+)',reason:'Magnesium boost — lifts mood and eases pain'},
-      {emoji:'🍵',label:'Chamomile & raspberry leaf tea',reason:'Relax uterine muscles, reduce pain'},
-    ],
-    supplements:[
-      {emoji:'🔴',label:'Iron',reason:'Replenish iron lost through bleeding'},
-      {emoji:'🟣',label:'Magnesium Glycinate',reason:'Reduces cramps, fatigue, and mood dips'},
-      {emoji:'🔵',label:'Omega-3 (fish oil)',reason:'Potent anti-inflammatory, reduces period pain'},
-      {emoji:'🟡',label:'Vitamin B12',reason:'Energy support and red blood cell production'},
-    ],
-    avoid:['Caffeine — worsens cramps and anxiety','Salty foods — increase bloating','Alcohol — disrupts hormone clearance'],
-    tip:'Rest more than usual. Gentle yoga, walking, or stretching is ideal. Apply heat to your lower abdomen.',
-    acneNote:null
-  },
-  follicular: {
-    name:'Follicular Phase', emoji:'🌱', days:'Day 6–12',
-    color:'#3a9e6a', bg:'#e6f7ef', textColor:'#1e6b45',
-    desc:'Estrogen is rising, follicles are developing. Energy, mood, creativity, and motivation are building.',
-    foods:[
-      {emoji:'🌻',label:'Flaxseeds',reason:'Seed cycling — support healthy estrogen levels'},
-      {emoji:'🥦',label:'Broccoli & cruciferous veg',reason:'Help metabolize and clear excess estrogen'},
-      {emoji:'🫙',label:'Fermented foods (yogurt, kimchi)',reason:'Gut health directly supports hormone balance'},
-      {emoji:'🥚',label:'Eggs & lean protein',reason:'Build energy, muscle, and neurotransmitters'},
-      {emoji:'🍓',label:'Berries & colorful fruits',reason:'Antioxidants protect cells and boost immunity'},
-    ],
-    supplements:[
-      {emoji:'🟡',label:'Vitamin B6',reason:'Supports estrogen balance and brain health'},
-      {emoji:'⚪',label:'Zinc',reason:'Follicle development and clear skin'},
-      {emoji:'🟠',label:'Vitamin E',reason:'Antioxidant, supports cervical fluid and fertility'},
-      {emoji:'🟢',label:'Probiotics',reason:'Estrogen is metabolized by the gut microbiome'},
-    ],
+// ── Phases ────────────────────────────────────────────────────────────────────
+const PHASES={
+  menstrual:{name:'Menstrual Phase',emoji:'🩸',days:'Day 1–5',color:'#e8648c',bg:'#fde8ef',textColor:'#c0264a',
+    desc:'Your body is shedding the uterine lining. Focus on rest and replenishing lost nutrients.',
+    foods:[{emoji:'🥬',label:'Spinach & leafy greens',reason:'Replace iron lost during bleeding'},{emoji:'🐟',label:'Salmon & sardines',reason:'Omega-3 reduces cramps and inflammation'},{emoji:'🫚',label:'Ginger & turmeric',reason:'Natural anti-inflammatories'},{emoji:'🍫',label:'Dark chocolate (70%+)',reason:'Magnesium boost — lifts mood and eases pain'},{emoji:'🍵',label:'Chamomile tea',reason:'Relaxes uterine muscles'}],
+    supplements:[{emoji:'🔴',label:'Iron',reason:'Replenish iron lost through bleeding'},{emoji:'🟣',label:'Magnesium Glycinate',reason:'Reduces cramps and fatigue'},{emoji:'🔵',label:'Omega-3',reason:'Anti-inflammatory, reduces period pain'},{emoji:'🟡',label:'Vitamin B12',reason:'Energy and red blood cell support'}],
+    avoid:['Caffeine — worsens cramps','Salty foods — increase bloating','Alcohol — disrupts hormone clearance'],
+    tip:'Rest more than usual. Apply heat to lower abdomen. Gentle yoga is ideal.',acneNote:null},
+  follicular:{name:'Follicular Phase',emoji:'🌱',days:'Day 6–12',color:'#3a9e6a',bg:'#e6f7ef',textColor:'#1e6b45',
+    desc:'Estrogen is rising. Energy, mood, and motivation are building. Best phase for new starts.',
+    foods:[{emoji:'🌻',label:'Flaxseeds',reason:'Seed cycling — support estrogen levels'},{emoji:'🥦',label:'Cruciferous vegetables',reason:'Help metabolize excess estrogen'},{emoji:'🫙',label:'Fermented foods',reason:'Gut health supports hormone balance'},{emoji:'🥚',label:'Eggs & lean protein',reason:'Build energy and neurotransmitters'},{emoji:'🍓',label:'Berries',reason:'Antioxidants protect cells'}],
+    supplements:[{emoji:'🟡',label:'Vitamin B6',reason:'Supports estrogen balance'},{emoji:'⚪',label:'Zinc',reason:'Follicle development and clear skin'},{emoji:'🟠',label:'Vitamin E',reason:'Antioxidant, supports cervical fluid'},{emoji:'🟢',label:'Probiotics',reason:'Gut microbiome metabolizes estrogen'}],
     avoid:['Processed foods — disrupt gut and hormones','Excess alcohol — impairs estrogen metabolism'],
-    tip:'High energy phase! Great for starting new workouts, projects, and social plans. Your brain is sharp.',
-    acneNote:null
-  },
-  ovulatory: {
-    name:'Ovulatory Phase', emoji:'✨', days:'Day 13–16',
-    color:'#d4880a', bg:'#fef3e2', textColor:'#8a5500',
-    desc:'Peak estrogen and LH surge trigger ovulation. You feel most energetic, confident, and communicative.',
-    foods:[
-      {emoji:'🫐',label:'Blueberries & antioxidant foods',reason:'Protect egg quality from oxidative stress'},
-      {emoji:'🥑',label:'Avocado & healthy fats',reason:'Support hormone synthesis and cervical fluid'},
-      {emoji:'🎃',label:'Pumpkin seeds',reason:'Zinc-rich — start zinc supplementation now'},
-      {emoji:'🌿',label:'High-fiber foods',reason:'Fiber binds and removes excess estrogen'},
-      {emoji:'🥗',label:'Leafy greens & cruciferous veg',reason:'DIM compound helps flush estrogen before luteal'},
-    ],
-    supplements:[
-      {emoji:'⚪',label:'Zinc',reason:'Supports ovulation trigger and immune function'},
-      {emoji:'🟠',label:'Vitamin C',reason:'Antioxidant — protects egg quality, boosts LH'},
-      {emoji:'🟡',label:'Folate (B9)',reason:'Cell health, egg quality, and DNA protection'},
-      {emoji:'🟤',label:'Selenium',reason:'Antioxidant — thyroid and hormone support'},
-    ],
-    avoid:['Excess soy — may affect estrogen levels','Alcohol — disrupts ovulation timing'],
-    tip:'Peak performance window. Channel your high energy into intense workouts, important conversations, and creative work.',
-    acneNote:null
-  },
-  luteal: {
-    name:'Luteal Phase', emoji:'🌙', days:'Day 17–28',
-    color:'#7a4fbf', bg:'#ede8f8', textColor:'#4a2080',
-    desc:'Progesterone rises then falls. PMS, mood changes, bloating, and hormonal acne are most common in the second half.',
-    foods:[
-      {emoji:'🎃',label:'Pumpkin seeds & oysters',reason:'#1 for acne — Zinc reduces sebum & inflammation'},
-      {emoji:'🍌',label:'Bananas & chickpeas',reason:'Vitamin B6 — regulates hormones & reduces PMS breakouts'},
-      {emoji:'🐟',label:'Salmon & fatty fish',reason:'Omega-3 — reduces acne-causing inflammation'},
-      {emoji:'🥦',label:'Broccoli, kale, Brussels sprouts',reason:'DIM flushes excess estrogen that triggers acne'},
-      {emoji:'🍫',label:'Dark chocolate & almonds',reason:'Magnesium — reduces PMS, anxiety, and improves sleep'},
-    ],
-    supplements:[
-      {emoji:'⚪',label:'Zinc (30–45mg) ⭐ Acne key!',reason:'Reduces sebum production, kills acne bacteria, anti-inflammatory. Most impactful supplement for hormonal acne.'},
-      {emoji:'🟣',label:'Magnesium Glycinate',reason:'Reduces PMS symptoms, anxiety, cramps, and improves sleep quality in luteal phase'},
-      {emoji:'🟡',label:'Vitamin B6 (25–50mg)',reason:'Balances progesterone/estrogen ratio — directly reduces hormonal acne and mood swings'},
-      {emoji:'🔵',label:'Omega-3 / Fish Oil',reason:'Reduces inflammatory acne, lowers androgen activity that triggers breakouts'},
-      {emoji:'🌸',label:'Evening Primrose Oil',reason:'GLA content regulates hormones and reduces cystic hormonal acne'},
-      {emoji:'🌿',label:'Chasteberry (Vitex)',reason:'Raises progesterone, balances LH/FSH — reduces PMS and hormonal acne long-term'},
-    ],
-    avoid:['Dairy (milk, cheese) — raises IGF-1 hormone, directly worsens acne','High-sugar foods & refined carbs — spike insulin, trigger androgen surge','Alcohol — disrupts liver clearance of excess estrogen','Processed / fried foods — promote inflammation'],
-    tip:'Slow down and prioritize sleep (7–9h). Stress raises cortisol which spikes androgens — the main driver of hormonal acne. Manage stress as medicine.',
-    acneNote:'⚠️ Hormonal acne peaks in this phase because rising androgens increase sebum. Your power trio: Zinc (reduces sebum) + Vitamin B6 (hormone balance) + Omega-3 (reduces inflammation). Cutting dairy and sugar has the fastest visible impact.'
-  }
+    tip:'High energy phase! Great for intense workouts, new projects, and social plans.',acneNote:null},
+  ovulatory:{name:'Ovulatory Phase',emoji:'✨',days:'Day 13–16',color:'#d4880a',bg:'#fef3e2',textColor:'#8a5500',
+    desc:'Peak estrogen and LH surge trigger ovulation. You feel most confident and communicative.',
+    foods:[{emoji:'🫐',label:'Blueberries',reason:'Protect egg quality from oxidative stress'},{emoji:'🥑',label:'Avocado',reason:'Supports hormone synthesis'},{emoji:'🎃',label:'Pumpkin seeds',reason:'Zinc-rich'},{emoji:'🌿',label:'High-fiber foods',reason:'Binds and removes excess estrogen'},{emoji:'🥗',label:'Cruciferous veg',reason:'DIM helps flush estrogen before luteal'}],
+    supplements:[{emoji:'⚪',label:'Zinc',reason:'Supports ovulation and immune function'},{emoji:'🟠',label:'Vitamin C',reason:'Protects egg quality, boosts LH'},{emoji:'🟡',label:'Folate (B9)',reason:'Cell health and egg quality'},{emoji:'🟤',label:'Selenium',reason:'Thyroid and hormone support'}],
+    avoid:['Excess soy — may affect estrogen','Alcohol — disrupts ovulation timing'],
+    tip:'Peak performance. Channel high energy into workouts, important conversations, and creative work.',acneNote:null},
+  luteal:{name:'Luteal Phase',emoji:'🌙',days:'Day 17–28',color:'#7a4fbf',bg:'#ede8f8',textColor:'#4a2080',
+    desc:'Progesterone rises then falls. PMS, bloating, and hormonal acne are most common now.',
+    foods:[{emoji:'🎃',label:'Pumpkin seeds & oysters',reason:'Zinc — #1 for acne, reduces sebum'},{emoji:'🍌',label:'Bananas & chickpeas',reason:'Vitamin B6 — regulates hormones, reduces breakouts'},{emoji:'🐟',label:'Salmon & fatty fish',reason:'Omega-3 — reduces acne inflammation'},{emoji:'🥦',label:'Broccoli & Brussels sprouts',reason:'DIM flushes excess estrogen triggering acne'},{emoji:'🍫',label:'Dark chocolate & almonds',reason:'Magnesium — reduces PMS and anxiety'}],
+    supplements:[{emoji:'⚪',label:'Zinc (30–45mg) ⭐',reason:'#1 for acne — reduces sebum, kills bacteria, anti-inflammatory'},{emoji:'🟣',label:'Magnesium Glycinate',reason:'Reduces PMS, anxiety, cramps, improves sleep'},{emoji:'🟡',label:'Vitamin B6 (25–50mg)',reason:'Balances hormones — directly reduces hormonal acne'},{emoji:'🔵',label:'Omega-3 / Fish Oil',reason:'Reduces inflammatory acne, lowers androgen activity'},{emoji:'🌿',label:'DIM',reason:'Clears excess estrogen — key for hormonal acne. Luteal phase ONLY.'},{emoji:'🌸',label:'Evening Primrose Oil',reason:'GLA reduces cystic hormonal acne'}],
+    avoid:['Dairy — raises IGF-1, directly worsens acne','High-sugar & refined carbs — spike insulin, trigger androgen surge','Alcohol — disrupts estrogen clearance','Processed / fried foods — promote inflammation'],
+    tip:'Prioritize sleep (7–9h). Stress raises cortisol → androgens → acne. Manage stress as medicine.',
+    acneNote:'⚠️ Acne peaks now — androgens increase sebum. Power trio: Zinc + Vitamin B6 + Omega-3. Cutting dairy & sugar has fastest visible impact.'}
 }
-
-function getCurrentPhase(cycles, settings) {
+function getCurrentPhase(cycles,settings){
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>b.startDate.localeCompare(a.startDate))
-  const last=sorted[0]; if(!last) return null
-  const today=todayISO()
-  if(today < last.startDate) return null
+  const last=sorted[0];if(!last)return null
+  const today=todayISO();if(today<last.startDate)return null
   const cycleDay=daysBetween(last.startDate,today)+1
   const avg=avgCycleLength(cycles,settings.averageCycleLength)
-  const periodLen=settings.averagePeriodLength
   const ovDay=avg-14
+  let key
+  if(cycleDay<=settings.averagePeriodLength)key='menstrual'
+  else if(cycleDay<=ovDay-2)key='follicular'
+  else if(cycleDay<=ovDay+2)key='ovulatory'
+  else key='luteal'
+  return{...PHASES[key],key,cycleDay,cycleLength:avg}
+}
 
-  let phaseKey
-  if(cycleDay<=periodLen)          phaseKey='menstrual'
-  else if(cycleDay<=ovDay-2)       phaseKey='follicular'
-  else if(cycleDay<=ovDay+2)       phaseKey='ovulatory'
-  else                             phaseKey='luteal'
+// ── Supplements ───────────────────────────────────────────────────────────────
+const SUPP_LIST=[
+  {id:'iron',label:'Iron',emoji:'🔴',phase:'menstrual',timing:'During period',desc:'Replenish iron lost through bleeding'},
+  {id:'magnesium',label:'Magnesium Glycinate',emoji:'🟣',phase:'always',timing:'Every day',desc:'Reduces cramps, PMS, anxiety, improves sleep'},
+  {id:'omega3',label:'Omega-3 / Fish Oil',emoji:'🔵',phase:'always',timing:'Every day',desc:'Anti-inflammatory for skin and cycle health'},
+  {id:'b12',label:'Vitamin B12',emoji:'🟡',phase:'menstrual',timing:'During period',desc:'Energy and red blood cell support'},
+  {id:'probiotics',label:'Probiotics',emoji:'🟢',phase:'always',timing:'Every day',desc:'Gut health supports estrogen metabolism'},
+  {id:'b6',label:'Vitamin B6',emoji:'🟠',phase:'luteal',timing:'After ovulation to period',desc:'Balances hormones, reduces PMS acne'},
+  {id:'zinc',label:'Zinc',emoji:'⚪',phase:'luteal',timing:'After ovulation to period',desc:'#1 for acne — reduces sebum and inflammation'},
+  {id:'dim',label:'DIM',emoji:'🌿',phase:'luteal',timing:'After ovulation to period',desc:'Clears excess estrogen — hormonal acne key. NOT all month.'},
+  {id:'epo',label:'Evening Primrose Oil',emoji:'🌸',phase:'follicular',timing:'Period end to ovulation',desc:'GLA supports hormone balance before ovulation'},
+  {id:'vitc',label:'Vitamin C',emoji:'🍊',phase:'ovulatory',timing:'Around ovulation',desc:'Antioxidant — supports egg quality'},
+  {id:'vitex',label:'Chasteberry (Vitex)',emoji:'🍇',phase:'always',timing:'Every day (3+ months)',desc:'Long-term hormone regulation, reduces PMS and acne'},
+  {id:'vitd',label:'Vitamin D3',emoji:'☀️',phase:'always',timing:'Every day',desc:'Hormone-like vitamin — deficiency worsens PMS and acne'},
+]
+const PHASE_ACTIVE={always:['menstrual','follicular','ovulatory','luteal'],menstrual:['menstrual'],follicular:['follicular','ovulatory'],ovulatory:['ovulatory'],luteal:['luteal']}
+function getTodaysSupps(phaseKey,userSupps){
+  if(!phaseKey||!userSupps?.length)return[]
+  return SUPP_LIST.filter(s=>userSupps.includes(s.id)&&PHASE_ACTIVE[s.phase]?.includes(phaseKey))
+}
 
-  return { ...PHASES[phaseKey], key:phaseKey, cycleDay, cycleLength:avg }
+// ── Blood Work Reference Ranges ───────────────────────────────────────────────
+const BLOOD_MARKERS=[
+  {id:'vitd',label:'Vitamin D',unit:'ng/mL',low:30,high:100,optimal:'40–80',category:'Vitamins'},
+  {id:'iron',label:'Iron (Serum)',unit:'mcg/dL',low:60,high:170,optimal:'80–150',category:'Minerals'},
+  {id:'ferritin',label:'Ferritin',unit:'ng/mL',low:12,high:150,optimal:'30–100',category:'Minerals'},
+  {id:'b12',label:'Vitamin B12',unit:'pg/mL',low:200,high:900,optimal:'400–800',category:'Vitamins'},
+  {id:'folate',label:'Folate',unit:'ng/mL',low:5,high:20,optimal:'8–20',category:'Vitamins'},
+  {id:'tsh',label:'TSH (Thyroid)',unit:'mIU/L',low:0.4,high:4.0,optimal:'1–2.5',category:'Hormones'},
+  {id:'t3',label:'Free T3',unit:'pg/mL',low:2.0,high:4.4,optimal:'3.0–4.0',category:'Hormones'},
+  {id:'t4',label:'Free T4',unit:'ng/dL',low:0.8,high:1.8,optimal:'1.0–1.6',category:'Hormones'},
+  {id:'testosterone',label:'Total Testosterone',unit:'ng/dL',low:15,high:70,optimal:'20–50',category:'Hormones'},
+  {id:'dhea',label:'DHEA-S',unit:'mcg/dL',low:35,high:430,optimal:'100–300',category:'Hormones'},
+  {id:'cortisol',label:'Cortisol (AM)',unit:'mcg/dL',low:6,high:23,optimal:'10–18',category:'Hormones'},
+  {id:'insulin',label:'Fasting Insulin',unit:'mIU/L',low:2,high:25,optimal:'2–8',category:'Metabolic'},
+  {id:'glucose',label:'Fasting Glucose',unit:'mg/dL',low:70,high:99,optimal:'70–85',category:'Metabolic'},
+  {id:'hba1c',label:'HbA1c',unit:'%',low:0,high:5.6,optimal:'4.5–5.4',category:'Metabolic'},
+  {id:'crp',label:'CRP (Inflammation)',unit:'mg/L',low:0,high:1.0,optimal:'<0.5',category:'Inflammation'},
+  {id:'hgb',label:'Hemoglobin',unit:'g/dL',low:12,high:16,optimal:'12–15',category:'CBC'},
+  {id:'zinc',label:'Zinc',unit:'mcg/dL',low:60,high:120,optimal:'80–110',category:'Minerals'},
+  {id:'magnesium',label:'Magnesium',unit:'mg/dL',low:1.7,high:2.4,optimal:'2.0–2.4',category:'Minerals'},
+]
+function flagValue(marker,val){
+  const v=parseFloat(val)
+  if(isNaN(v))return null
+  if(v<marker.low)return'low'
+  if(v>marker.high)return'high'
+  return'ok'
+}
+
+// ── Insights engine ───────────────────────────────────────────────────────────
+function getInsights(phase,bloodTests,meds){
+  const insights=[]
+  const latest={}
+  for(const test of bloodTests){
+    for(const r of(test.results||[])){
+      if(!latest[r.markerId]||test.date>latest[r.markerId].date)latest[r.markerId]={...r,date:test.date}
+    }
+  }
+  const get=id=>latest[id]
+  const vitd=get('vitd'),iron=get('iron'),ferritin=get('ferritin'),zinc=get('zinc'),b12=get('b12'),cortisol=get('cortisol'),tsh=get('tsh'),insulin=get('insulin')
+  if(vitd&&parseFloat(vitd.value)<30&&phase?.key==='luteal')insights.push({emoji:'☀️',text:'<b>Low Vitamin D + Luteal phase</b> — Vitamin D deficiency worsens hormonal acne and PMS. Consider 2000–4000 IU/day.'})
+  if(zinc&&parseFloat(zinc.value)<70&&phase?.key==='luteal')insights.push({emoji:'⚪',text:'<b>Low Zinc + Luteal phase</b> — Zinc deficiency directly worsens hormonal acne. Supplement 30–45mg during luteal phase.'})
+  if((iron&&parseFloat(iron.value)<60)||(ferritin&&parseFloat(ferritin.value)<15))insights.push({emoji:'🩸',text:'<b>Low Iron/Ferritin</b> — Explains fatigue, especially during your period. Supplement iron with Vitamin C for better absorption.'})
+  if(cortisol&&parseFloat(cortisol.value)>20&&phase?.key==='luteal')insights.push({emoji:'😰',text:'<b>High Cortisol + Luteal phase</b> — Elevated cortisol spikes androgens, worsening acne and PMS. Stress management is critical now.'})
+  if(tsh&&parseFloat(tsh.value)>3.0)insights.push({emoji:'🦋',text:'<b>TSH trending high</b> — Suboptimal thyroid function can cause irregular cycles, fatigue, and weight gain. Optimal TSH is 1–2.5.'})
+  if(insulin&&parseFloat(insulin.value)>10&&phase?.key==='luteal')insights.push({emoji:'🍬',text:'<b>High Insulin + Luteal phase</b> — Insulin resistance worsens hormonal acne by triggering androgen production. Reduce refined carbs and sugar now.'})
+  if(b12&&parseFloat(b12.value)<300)insights.push({emoji:'🟡',text:'<b>Low B12</b> — Can cause fatigue and mood issues. Supplement methylcobalamin B12 1000mcg/day.'})
+  if(vitd&&parseFloat(vitd.value)<30)insights.push({emoji:'🌟',text:'<b>Low Vitamin D</b> — Affects mood, immunity, and hormone balance. Target 40–80 ng/mL.'})
+  return insights
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────
 let currentPage='home'
 const content=document.getElementById('content')
-
 function navigate(page){
   currentPage=page
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.page===page))
-  if(page!=='log') logState={date:'',flow:'',mood:'',symptoms:[],notes:'',weight:'',water:0}
+  if(page!=='log')logState={date:'',flow:'',mood:'',symptoms:[],notes:'',weight:'',water:0}
   render()
 }
-
 document.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)))
-
 function render(){
   switch(currentPage){
-    case 'home':     renderHome(); break
-    case 'calendar': renderCalendar(); break
-    case 'log':      renderLog(); break
-    case 'history':  renderHistory(); break
-    case 'settings': renderSettings(); break
+    case'home':renderHome();break
+    case'calendar':renderCalendar();break
+    case'log':renderLog();break
+    case'history':renderHistory();break
+    case'meds':renderMeds();break
+    case'health':renderHealth();break
+    case'settings':renderSettings();break
   }
 }
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 function renderHome(){
-  const cycles=DB.cycles, settings=DB.settings
-  const pred=predictNext(cycles,settings), fert=fertileWindow(cycles,settings)
+  const cycles=DB.cycles,settings=DB.settings
+  const pred=predictNext(cycles,settings),fert=fertileWindow(cycles,settings)
   const avg=avgCycleLength(cycles,settings.averageCycleLength)
-  const today=todayISO(), active=cycles.find(c=>!c.endDate)||null
-
+  const today=todayISO(),active=cycles.find(c=>!c.endDate)||null
+  const phase=getCurrentPhase(cycles,settings)
   let cardClass,cardLabel,cardSub,cardAction=null
   if(active){
     const day=daysBetween(active.startDate,today)+1
-    cardClass='status-period'; cardLabel=`Day ${day} of your period`; cardSub='Tap to end period'
-    cardAction=()=>{ const c=[...DB.cycles]; const i=c.findIndex(x=>!x.endDate); if(i>=0){c[i]={...c[i],endDate:today};DB.saveCycles(c)} renderHome() }
-  } else if(!pred){
-    cardClass='status-neutral'; cardLabel='Log your first period'; cardSub='Tap + Log period below'
-  } else {
+    cardClass='status-period';cardLabel=`Day ${day} of your period`;cardSub='Tap to end period'
+    cardAction=()=>{const c=[...DB.cycles];const i=c.findIndex(x=>!x.endDate);if(i>=0){c[i]={...c[i],endDate:today};DB.saveCycles(c)}renderHome()}
+  }else if(!pred){cardClass='status-neutral';cardLabel='Log your first period';cardSub='Tap + Log period below'}
+  else{
     const days=daysUntil(pred.predictedStart)
-    if(days<0)      { cardClass='status-late';     cardLabel='Period may be late';    cardSub=`Expected ${fmtShort(pred.predictedStart)}` }
-    else if(days===0){ cardClass='status-today';    cardLabel='Period expected today'; cardSub='Tap to log it'; cardAction=()=>showLogModal() }
-    else             { cardClass='status-upcoming'; cardLabel=`${days} days until period`; cardSub=`Expected ${fmtShort(pred.predictedStart)}` }
+    if(days<0){cardClass='status-late';cardLabel='Period may be late';cardSub=`Expected ${fmtShort(pred.predictedStart)}`}
+    else if(days===0){cardClass='status-today';cardLabel='Period expected today';cardSub='Tap to log it';cardAction=()=>showLogModal()}
+    else{cardClass='status-upcoming';cardLabel=`${days} days until period`;cardSub=`Expected ${fmtShort(pred.predictedStart)}`}
   }
-
   const isFertileToday=fert&&today>=fert.fertileStart&&today<=fert.fertileEnd
   const isOvToday=fert&&today===fert.ovulationDate
-  const phase=getCurrentPhase(cycles,settings)
+  const todaySupps=phase?getTodaysSupps(phase.key,settings.userSupplements):[]
+  const insights=getInsights(phase,DB.bloodTests,DB.meds)
+
+  // Meds due today
+  const medLogs=DB.medLogs,meds=DB.meds
+  const todayMeds=meds.filter(m=>m.active!==false)
+  const todayLog=medLogs[today]||{}
+  const medsDue=todayMeds.filter(m=>!todayLog[m.id])
+  const refillWarnings=meds.filter(m=>m.active!==false&&m.pillsLeft!=null&&m.pillsLeft<=7)
 
   content.innerHTML=`
     <h1 class="page-title">Hi 🌸</h1>
@@ -504,179 +463,214 @@ function renderHome(){
       <div class="status-sub">${cardSub}</div>
     </div>
 
-    ${phase?`
-    <div class="phase-card" id="phase-card" style="background:${phase.bg};border:2px solid ${phase.color}22">
-      <div class="phase-card-top">
-        <div class="phase-badge">
-          <span class="phase-emoji">${phase.emoji}</span>
+    ${phase?`<div class="phase-card" id="phase-card" style="background:${phase.bg};border:2px solid ${phase.color}22">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:22px">${phase.emoji}</span>
           <div>
-            <div class="phase-name" style="color:${phase.textColor}">${phase.name}</div>
-            <div class="phase-day" style="color:${phase.textColor}">Day ${phase.cycleDay} of ~${phase.cycleLength}</div>
+            <div style="font-size:15px;font-weight:700;color:${phase.textColor}">${phase.name}</div>
+            <div style="font-size:11px;color:${phase.textColor};opacity:.75">Day ${phase.cycleDay} of ~${phase.cycleLength}</div>
           </div>
         </div>
-        <span style="font-size:20px;color:${phase.color}">›</span>
+        <span style="font-size:18px;color:${phase.color}">›</span>
       </div>
-      <div class="phase-desc" style="color:${phase.textColor}">${phase.desc}</div>
-      <div class="phase-quick-chips">
-        ${phase.supplements.slice(0,3).map(s=>`<span class="phase-chip" style="background:${phase.color}22;color:${phase.textColor}">${s.label.split('(')[0].trim().split(' ').slice(0,2).join(' ')}</span>`).join('')}
+      <div style="font-size:12px;color:${phase.textColor};opacity:.85;line-height:1.5;margin-bottom:8px">${phase.desc}</div>
+      ${phase.acneNote?`<div style="background:rgba(232,100,140,.12);color:#c0264a;border-radius:var(--r-md);padding:8px 10px;font-size:11px;line-height:1.5;margin-bottom:6px">${phase.acneNote}</div>`:''}
+      <div style="font-size:11px;font-weight:600;color:${phase.color};opacity:.7;text-align:right">Tap for food & supplement guide →</div>
+    </div>`:''}
+
+    ${insights.length?`<div class="card" style="border-left:3px solid var(--blue)">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">🔬 Your Health Insights</div>
+      ${insights.map(i=>`<div class="insight-row"><span class="insight-emoji">${i.emoji}</span><div class="insight-text">${i.text}</div></div>`).join('')}
+    </div>`:''}
+
+    ${refillWarnings.length?`<div class="refill-warn">⚠️ Refill soon: ${refillWarnings.map(m=>`<b>${m.name}</b> (${m.pillsLeft} pills left)`).join(', ')}</div>`:''}
+
+    ${todayMeds.length?`<div class="card" style="border-left:3px solid var(--purple)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700">💊 Medications today</div>
+        <span style="font-size:11px;color:var(--muted)">${todayMeds.length-medsDue.length}/${todayMeds.length} taken</span>
       </div>
-      ${phase.acneNote?`<div class="phase-acne-alert" style="background:rgba(232,100,140,.12);color:#c0264a">${phase.acneNote}</div>`:''}
-      <div class="phase-cta" style="color:${phase.color}">Tap for food & supplement guide →</div>
+      ${todayMeds.slice(0,3).map(m=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+          <div class="med-check${todayLog[m.id]==='done'?' done':''}" data-medcheck="${m.id}">${todayLog[m.id]==='done'?'✓':''}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">${m.name}</div><div style="font-size:11px;color:var(--muted)">${m.dose||''} ${m.frequency||''}</div></div>
+        </div>`).join('')}
+      ${todayMeds.length>3?`<div style="font-size:12px;color:var(--muted);text-align:center;padding-top:8px;cursor:pointer" id="view-all-meds">View all ${todayMeds.length} →</div>`:''}
+    </div>`:''}
+
+    ${phase&&todaySupps.length?`<div class="card" style="border-left:3px solid var(--pink)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700">🌿 Supplements today</div>
+        <span style="font-size:11px;color:var(--muted);cursor:pointer" id="edit-supps">Edit →</span>
+      </div>
+      ${todaySupps.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:18px">${s.emoji}</span>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">${s.label}</div><div style="font-size:11px;color:var(--muted)">${s.desc}</div></div>
+        <span style="font-size:10px;background:var(--surface-alt);color:var(--pink-dark);border-radius:var(--r-full);padding:2px 7px;font-weight:600;white-space:nowrap">${s.timing}</span>
+      </div>`).join('')}
+    </div>`:''}
+
+    ${phase&&!todaySupps.length?`<div class="card" id="supp-setup-card" style="cursor:pointer;border-left:3px solid var(--pink)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px">🌿 Supplement Schedule</div>
+        <div style="font-size:11px;color:var(--muted)">Tap to set up cycle-based supplement reminders</div></div>
+        <span style="font-size:18px;color:var(--pink)">›</span>
+      </div>
     </div>`:''}
 
     ${fert?`<div class="card">
-      <div class="fertile-header"><span class="fertile-dot"></span>
-        <span class="fertile-title">${isOvToday?'Ovulation day today':isFertileToday?'Fertile window — today':'Fertile window'}</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--purple);flex-shrink:0;display:inline-block"></span>
+        <span style="font-size:12px;font-weight:600;color:var(--purple)">${isOvToday?'Ovulation day today':isFertileToday?'Fertile window — today':'Fertile window'}</span>
       </div>
-      <div class="fertile-dates">${fmtShort(fert.fertileStart)} – ${fmtShort(fert.fertileEnd)}
-        <span class="ov-badge">Ovulation ${fmtShort(fert.ovulationDate)}</span>
+      <div style="font-size:12px;color:var(--muted)">${fmtShort(fert.fertileStart)} – ${fmtShort(fert.fertileEnd)}
+        <span style="background:var(--purple-light);color:var(--ovulation);border-radius:var(--r-full);padding:2px 10px;font-size:10px;font-weight:600;margin-left:8px">Ovulation ${fmtShort(fert.ovulationDate)}</span>
       </div>
     </div>`:''}
+
     <div class="stats-row">
       <div class="stat-pill"><span class="stat-value">${avg}</span><span class="stat-label">Avg cycle</span></div>
       <div class="stat-pill"><span class="stat-value">${settings.averagePeriodLength}</span><span class="stat-label">Period days</span></div>
       <div class="stat-pill"><span class="stat-value">${cycles.length}</span><span class="stat-label">Logged</span></div>
     </div>
-    <button class="btn btn-primary" id="log-btn" style="margin-bottom:16px">${active?'Update period':'+ Log period'}</button>
-    ${!window.navigator.standalone?`<div class="install-banner"><strong>📱 Add to Home Screen for best experience</strong>Tap the Share icon in Safari → "Add to Home Screen" to install Bloom with notification support.</div>`:''}
+    <button class="btn btn-primary" id="log-btn" style="margin-bottom:14px">${active?'Update period':'+ Log period'}</button>
+    ${!window.navigator.standalone?`<div class="install-banner"><strong>📱 Add to Home Screen</strong> Safari → Share → Add to Home Screen for notifications & offline use.</div>`:''}
   `
   document.getElementById('status-card')?.addEventListener('click',()=>cardAction?.())
   document.getElementById('phase-card')?.addEventListener('click',()=>showPhaseModal(phase))
   document.getElementById('log-btn').addEventListener('click',showLogModal)
+  document.getElementById('supp-setup-card')?.addEventListener('click',showSuppSetupModal)
+  document.getElementById('edit-supps')?.addEventListener('click',showSuppSetupModal)
+  document.getElementById('view-all-meds')?.addEventListener('click',()=>navigate('meds'))
+  document.querySelectorAll('[data-medcheck]').forEach(el=>el.addEventListener('click',()=>{
+    const id=el.dataset.medcheck,logs=DB.medLogs,tlog=logs[today]||{}
+    tlog[id]=tlog[id]==='done'?null:'done'
+    logs[today]=tlog;DB.saveMedLogs(logs)
+    renderHome()
+  }))
 }
 
 function showPhaseModal(phase){
-  if(!phase) return
-  const overlay=document.createElement('div')
-  overlay.className='overlay'
-  overlay.innerHTML=`
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-
-      <div class="phase-modal-header" style="background:${phase.bg}">
-        <div class="phase-modal-emoji">${phase.emoji}</div>
-        <div class="phase-modal-name" style="color:${phase.textColor}">${phase.name}</div>
-        <div class="phase-modal-days" style="color:${phase.textColor}">Day ${phase.cycleDay} of ~${phase.cycleLength} · ${phase.days}</div>
-      </div>
-      <div class="phase-modal-desc" style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px">${phase.desc}</div>
-
-      ${phase.acneNote?`
-      <div class="acne-box" style="background:#fde8ef;color:#c0264a;margin-bottom:20px">
-        ${phase.acneNote}
-      </div>`:''}
-
-      <div class="card" style="margin-bottom:16px">
-        <div class="phase-section-title">🥗 Foods to eat</div>
-        <div>${phase.foods.map(f=>`
-          <div class="rec-item">
-            <span class="rec-emoji">${f.emoji}</span>
-            <div><div class="rec-label">${f.label}</div><div class="rec-reason">${f.reason}</div></div>
-          </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px">
-        <div class="phase-section-title">💊 Supplements</div>
-        <div>${phase.supplements.map(s=>`
-          <div class="rec-item">
-            <span class="rec-emoji">${s.emoji}</span>
-            <div><div class="rec-label">${s.label}</div><div class="rec-reason">${s.reason}</div></div>
-          </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px">
-        <div class="phase-section-title">🚫 Avoid</div>
-        <div class="avoid-list">${phase.avoid.map(a=>`
-          <div class="avoid-item"><span class="avoid-x">✕</span><span>${a}</span></div>`).join('')}
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px">
-        <div class="phase-section-title">💡 Tip</div>
-        <div class="tip-box">${phase.tip}</div>
-      </div>
-
-      <button class="btn btn-primary" id="phase-close">Got it!</button>
+  if(!phase)return
+  const ov=document.createElement('div');ov.className='overlay'
+  ov.innerHTML=`<div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="background:${phase.bg};border-radius:var(--r-lg);padding:18px;margin-bottom:16px;text-align:center">
+      <div style="font-size:36px;margin-bottom:6px">${phase.emoji}</div>
+      <div style="font-size:18px;font-weight:700;color:${phase.textColor}">${phase.name}</div>
+      <div style="font-size:12px;color:${phase.textColor};opacity:.8">Day ${phase.cycleDay} of ~${phase.cycleLength} · ${phase.days}</div>
     </div>
-  `
-  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove() })
-  document.body.appendChild(overlay)
-  document.getElementById('phase-close').addEventListener('click',()=>overlay.remove())
+    ${phase.acneNote?`<div style="background:#fde8ef;color:#c0264a;border-radius:var(--r-md);padding:12px;font-size:13px;line-height:1.6;margin-bottom:14px">${phase.acneNote}</div>`:''}
+    <div class="card" style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">🥗 Foods to eat</div>${phase.foods.map(f=>`<div class="rec-item"><span class="rec-emoji">${f.emoji}</span><div><div class="rec-label">${f.label}</div><div class="rec-reason">${f.reason}</div></div></div>`).join('')}</div>
+    <div class="card" style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">💊 Supplements</div>${phase.supplements.map(s=>`<div class="rec-item"><span class="rec-emoji">${s.emoji}</span><div><div class="rec-label">${s.label}</div><div class="rec-reason">${s.reason}</div></div></div>`).join('')}</div>
+    <div class="card" style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:10px">🚫 Avoid</div>${phase.avoid.map(a=>`<div class="avoid-item"><span class="avoid-x">✕</span><span>${a}</span></div>`).join('')}</div>
+    <div class="card" style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">💡 Tip</div><div class="tip-box">${phase.tip}</div></div>
+    <button class="btn btn-primary" id="phase-close">Got it!</button>
+  </div>`
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('phase-close').addEventListener('click',()=>ov.remove())
 }
 
 function showLogModal(){
-  const cycles=DB.cycles, active=cycles.find(c=>!c.endDate)||null, today=todayISO()
-  const overlay=document.createElement('div')
-  overlay.className='overlay'
-  overlay.innerHTML=active?`
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">Update Period</div>
-      <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px">Period started <strong>${active.startDate}</strong></p>
-      <div class="form-group"><label>End date</label><input type="date" id="end-date" class="form-input" value="${today}" max="${today}"></div>
-      <button class="btn btn-primary" id="end-btn" style="margin-bottom:8px">Mark period ended</button>
-      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
-    </div>
-  `:`
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">Log Period</div>
-      <div class="form-group"><label>Period start date</label><input type="date" id="start-date" class="form-input" value="${today}" max="${today}"></div>
-      <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="end-date" class="form-input" max="${today}"></div>
-      <div id="form-error" class="form-error" style="display:none"></div>
-      <button class="btn btn-primary" id="save-btn" style="margin-bottom:8px">Save</button>
-      <button class="btn btn-secondary" id="today-btn" style="margin-bottom:8px">Started today</button>
-      <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
-    </div>
-  `
-  overlay.addEventListener('click',e=>{ if(e.target===overlay)overlay.remove() })
-  document.body.appendChild(overlay)
-  document.getElementById('cancel-btn').addEventListener('click',()=>overlay.remove())
+  const cycles=DB.cycles,active=cycles.find(c=>!c.endDate)||null,today=todayISO()
+  const ov=document.createElement('div');ov.className='overlay'
+  ov.innerHTML=active?`<div class="sheet">
+    <div class="sheet-handle"></div><div class="sheet-title">Update Period</div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:14px">Period started <strong>${active.startDate}</strong></p>
+    <div class="form-group"><label>End date</label><input type="date" id="end-date" class="form-input" value="${today}" max="${today}"></div>
+    <button class="btn btn-primary" id="end-btn" style="margin-bottom:8px">Mark period ended</button>
+    <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+  </div>`:`<div class="sheet">
+    <div class="sheet-handle"></div><div class="sheet-title">Log Period</div>
+    <div class="form-group"><label>Start date</label><input type="date" id="start-date" class="form-input" value="${today}" max="${today}"></div>
+    <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="end-date" class="form-input" max="${today}"></div>
+    <div id="form-error" class="form-error" style="display:none"></div>
+    <button class="btn btn-primary" id="save-btn" style="margin-bottom:8px">Save</button>
+    <button class="btn btn-secondary" id="today-btn" style="margin-bottom:8px">Started today</button>
+    <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+  </div>`
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('cancel-btn').addEventListener('click',()=>ov.remove())
   if(active){
     document.getElementById('end-btn').addEventListener('click',()=>{
       const end=document.getElementById('end-date').value||today
-      const c=[...DB.cycles]; const i=c.findIndex(x=>!x.endDate)
+      const c=[...DB.cycles];const i=c.findIndex(x=>!x.endDate)
       if(i>=0){c[i]={...c[i],endDate:end};DB.saveCycles(c)}
-      overlay.remove(); renderHome()
+      ov.remove();renderHome()
     })
-  } else {
-    document.getElementById('today-btn').addEventListener('click',()=>{ document.getElementById('start-date').value=today; document.getElementById('end-date').value='' })
+  }else{
+    document.getElementById('today-btn').addEventListener('click',()=>{document.getElementById('start-date').value=today;document.getElementById('end-date').value=''})
     document.getElementById('save-btn').addEventListener('click',()=>{
-      const start=document.getElementById('start-date').value, end=document.getElementById('end-date').value
-      const err=document.getElementById('form-error')
+      const start=document.getElementById('start-date').value,end=document.getElementById('end-date').value,err=document.getElementById('form-error')
       if(!start){err.style.display='block';err.textContent='Please enter a start date';return}
       if(end&&end<start){err.style.display='block';err.textContent='End date must be after start date';return}
-      const c=[...DB.cycles]; const ei=c.findIndex(x=>!x.endDate)
-      if(ei>=0) c[ei]={...c[ei],endDate:start}
+      const c=[...DB.cycles];const ei=c.findIndex(x=>!x.endDate)
+      if(ei>=0)c[ei]={...c[ei],endDate:start}
       c.unshift({id:crypto.randomUUID(),startDate:start,endDate:end||null,notes:''})
-      DB.saveCycles(c); overlay.remove(); renderHome()
+      DB.saveCycles(c);ov.remove();renderHome()
     })
   }
+}
+
+function showSuppSetupModal(){
+  const current=DB.settings.userSupplements||[]
+  const ov=document.createElement('div');ov.className='overlay'
+  const groups={always:'🌀 Every day',luteal:'🌙 Luteal phase only (after ovulation)',menstrual:'🩸 During period only',follicular:'🌱 Follicular/ovulatory phase',ovulatory:'✨ Around ovulation only'}
+  const grouped={}
+  SUPP_LIST.forEach(s=>{if(!grouped[s.phase])grouped[s.phase]=[];grouped[s.phase].push(s)})
+  ov.innerHTML=`<div class="sheet">
+    <div class="sheet-handle"></div><div class="sheet-title">💊 My Supplements</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">Select what you take. Bloom shows only what's relevant for your current cycle phase each day.</p>
+    <div id="supp-list">
+      ${Object.entries(groups).map(([phase,label])=>!grouped[phase]?'':`
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">${label}</div>
+          ${grouped[phase].map(s=>`<label style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer">
+            <input type="checkbox" value="${s.id}" ${current.includes(s.id)?'checked':''} style="width:17px;height:17px;accent-color:var(--pink);margin-top:2px;flex-shrink:0">
+            <span style="font-size:16px;flex-shrink:0">${s.emoji}</span>
+            <div><div style="font-size:13px;font-weight:600">${s.label}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:1px">${s.desc}</div>
+            <span style="font-size:10px;background:var(--surface-alt);color:var(--pink-dark);border-radius:var(--r-full);padding:1px 7px;margin-top:3px;display:inline-block;font-weight:600">${s.timing}</span></div>
+          </label>`).join('')}
+        </div>`).join('')}
+    </div>
+    <button class="btn btn-primary" id="save-supps" style="margin-bottom:8px">Save</button>
+    <button class="btn btn-secondary" id="cancel-supps">Cancel</button>
+  </div>`
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('cancel-supps').addEventListener('click',()=>ov.remove())
+  document.getElementById('save-supps').addEventListener('click',()=>{
+    const checked=[...ov.querySelectorAll('input[type=checkbox]:checked')].map(el=>el.value)
+    DB.updateSetting('userSupplements',checked);ov.remove();renderHome()
+  })
 }
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
 let calYear,calMonth,calSelected=null
 function renderCalendar(){
   const now=new Date()
-  if(!calYear)     calYear=now.getFullYear()
-  if(calMonth==null) calMonth=now.getMonth()
-  const cycles=DB.cycles, settings=DB.settings
-  const pred=predictNext(cycles,settings), fert=fertileWindow(cycles,settings)
-  const days=getDaysInMonth(calYear,calMonth), firstDay=firstDayOfMonth(calYear,calMonth)
-  const today=todayISO(), symDates=new Set(DB.symptoms.map(s=>s.date))
+  if(!calYear)calYear=now.getFullYear()
+  if(calMonth==null)calMonth=now.getMonth()
+  const cycles=DB.cycles,settings=DB.settings
+  const pred=predictNext(cycles,settings),fert=fertileWindow(cycles,settings)
+  const days=getDaysInMonth(calYear,calMonth),firstDay=firstDayOfMonth(calYear,calMonth)
+  const today=todayISO(),symDates=new Set(DB.symptoms.map(s=>s.date))
   const dayNames=['Su','Mo','Tu','We','Th','Fr','Sa']
   let grid=dayNames.map(d=>`<div class="cal-dayname">${d}</div>`).join('')
-  for(let i=0;i<firstDay;i++) grid+='<div></div>'
+  for(let i=0;i<firstDay;i++)grid+='<div></div>'
   days.forEach(iso=>{
     const st=getDayStatus(iso,cycles,pred,fert)
     let cls='cal-day'
-    if(st.includes('period'))    cls+=' cal-period'
-    if(st.includes('predicted')) cls+=' cal-predicted'
-    if(st.includes('fertile'))   cls+=' cal-fertile'
-    if(st.includes('ovulation')) cls+=' cal-ovulation'
-    if(iso===today)              cls+=' cal-today-ring'
-    if(iso===calSelected)        cls+=' cal-selected'
+    if(st.includes('period'))cls+=' cal-period'
+    if(st.includes('predicted'))cls+=' cal-predicted'
+    if(st.includes('fertile'))cls+=' cal-fertile'
+    if(st.includes('ovulation'))cls+=' cal-ovulation'
+    if(iso===today)cls+=' cal-today-ring'
+    if(iso===calSelected)cls+=' cal-selected'
     const dot=symDates.has(iso)?'<span class="cal-symdot"></span>':''
     grid+=`<div class="${cls}" data-iso="${iso}">${parseInt(iso.slice(8))}${dot}</div>`
   })
@@ -685,11 +679,7 @@ function renderCalendar(){
   const bMap={period:'Period',predicted:'Predicted',fertile:'Fertile',ovulation:'Ovulation'}
   const bCls={period:'sbadge-period',predicted:'sbadge-predicted',fertile:'sbadge-fertile',ovulation:'sbadge-ovulation'}
   content.innerHTML=`
-    <div class="cal-header">
-      <button class="cal-nav" id="prev-month">‹</button>
-      <span class="cal-title">${fmtMonthYear(calYear,calMonth)}</span>
-      <button class="cal-nav" id="next-month">›</button>
-    </div>
+    <div class="cal-header"><button class="cal-nav" id="prev-month">‹</button><span class="cal-title">${fmtMonthYear(calYear,calMonth)}</span><button class="cal-nav" id="next-month">›</button></div>
     <div class="cal-grid">${grid}</div>
     <div class="cal-legend">
       <span class="legend-item"><span class="legend-dot" style="background:var(--period-bg);border:1px solid var(--period-color)"></span>Period</span>
@@ -697,101 +687,74 @@ function renderCalendar(){
       <span class="legend-item"><span class="legend-dot" style="background:var(--fertile-bg)"></span>Fertile</span>
       <span class="legend-item"><span class="legend-dot" style="background:var(--purple-light)"></span>Ovulation</span>
     </div>
-    ${calSelected?`<div class="card day-detail">
-      <div class="day-detail-date">${calSelected}</div>
-      ${selSt.length?`<div class="status-badges">${selSt.map(s=>`<span class="sbadge ${bCls[s]}">${bMap[s]}</span>`).join('')}</div>`:''}
+    ${calSelected?`<div class="card">
+      <div style="font-weight:700;margin-bottom:10px;color:var(--pink-dark)">${calSelected}</div>
+      ${selSt.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${selSt.map(s=>`<span class="sbadge ${bCls[s]}">${bMap[s]}</span>`).join('')}</div>`:''}
       ${selSym?`
-        ${selSym.flow?`<div class="detail-row"><b>Flow:</b> ${selSym.flow}</div>`:''}
-        ${selSym.mood?`<div class="detail-row"><b>Mood:</b> ${selSym.mood}</div>`:''}
-        ${selSym.symptoms?.length?`<div class="detail-row"><b>Symptoms:</b> ${selSym.symptoms.join(', ')}</div>`:''}
-        ${selSym.weight?`<div class="detail-row"><b>Weight:</b> ${selSym.weight} ${DB.settings.weightUnit}</div>`:''}
-        ${selSym.water?`<div class="detail-row"><b>Water:</b> ${selSym.water} glasses</div>`:''}
-        ${selSym.notes?`<div class="detail-row"><b>Notes:</b> ${selSym.notes}</div>`:''}
-      `:'<p class="detail-empty">No data logged for this day.</p>'}
+        ${selSym.flow?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px"><b style="color:var(--text)">Flow:</b> ${selSym.flow}</div>`:''}
+        ${selSym.mood?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px"><b style="color:var(--text)">Mood:</b> ${selSym.mood}</div>`:''}
+        ${selSym.symptoms?.length?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px"><b style="color:var(--text)">Symptoms:</b> ${selSym.symptoms.join(', ')}</div>`:''}
+        ${selSym.weight?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px"><b style="color:var(--text)">Weight:</b> ${selSym.weight} ${DB.settings.weightUnit}</div>`:''}
+        ${selSym.water?`<div style="font-size:13px;color:var(--muted);margin-bottom:3px"><b style="color:var(--text)">Water:</b> ${selSym.water} glasses</div>`:''}
+        ${selSym.notes?`<div style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">Notes:</b> ${selSym.notes}</div>`:''}
+      `:'<p style="font-size:13px;color:var(--muted)">No data logged for this day.</p>'}
     </div>`:''}
   `
-  document.getElementById('prev-month').addEventListener('click',()=>{ if(calMonth===0){calMonth=11;calYear--}else calMonth--; renderCalendar() })
-  document.getElementById('next-month').addEventListener('click',()=>{ if(calMonth===11){calMonth=0;calYear++}else calMonth++; renderCalendar() })
-  document.querySelectorAll('.cal-day[data-iso]').forEach(el=>el.addEventListener('click',()=>{ calSelected=el.dataset.iso===calSelected?null:el.dataset.iso; renderCalendar() }))
+  document.getElementById('prev-month').addEventListener('click',()=>{if(calMonth===0){calMonth=11;calYear--}else calMonth--;renderCalendar()})
+  document.getElementById('next-month').addEventListener('click',()=>{if(calMonth===11){calMonth=0;calYear++}else calMonth++;renderCalendar()})
+  document.querySelectorAll('.cal-day[data-iso]').forEach(el=>el.addEventListener('click',()=>{calSelected=el.dataset.iso===calSelected?null:el.dataset.iso;renderCalendar()}))
 }
 
 // ── Log ───────────────────────────────────────────────────────────────────────
+const SYMPTOMS=[{id:'cramps',label:'Cramps',emoji:'😣'},{id:'bloating',label:'Bloating',emoji:'🫧'},{id:'headache',label:'Headache',emoji:'🤕'},{id:'backache',label:'Backache',emoji:'🔩'},{id:'nausea',label:'Nausea',emoji:'🤢'},{id:'fatigue',label:'Fatigue',emoji:'😴'},{id:'acne',label:'Acne',emoji:'🧴'},{id:'tender',label:'Breast pain',emoji:'💗'},{id:'cravings',label:'Cravings',emoji:'🍫'},{id:'spotting',label:'Spotting',emoji:'🩸'}]
+const MOODS=[{id:'happy',label:'Happy',emoji:'😊'},{id:'calm',label:'Calm',emoji:'😌'},{id:'sensitive',label:'Sensitive',emoji:'🥺'},{id:'irritable',label:'Irritable',emoji:'😤'},{id:'anxious',label:'Anxious',emoji:'😰'},{id:'sad',label:'Sad',emoji:'😢'},{id:'energetic',label:'Energetic',emoji:'⚡'},{id:'tired',label:'Tired',emoji:'😩'}]
+const FLOWS=[{id:'spotting',label:'Spotting'},{id:'light',label:'Light'},{id:'medium',label:'Medium'},{id:'heavy',label:'Heavy'},{id:'none',label:'None'}]
 let logState={date:'',flow:'',mood:'',symptoms:[],notes:'',weight:'',water:0}
-
 function renderLog(){
-  if(!logState.date) logState.date=todayISO()
+  if(!logState.date)logState.date=todayISO()
   const existing=DB.symptoms.find(s=>s.date===logState.date)
-  if(existing){
-    logState={
-      date:logState.date, flow:existing.flow||'', mood:existing.mood||'',
-      symptoms:existing.symptoms||[], notes:existing.notes||'',
-      weight:existing.weight||'', water:existing.water||0
-    }
-  }
+  if(existing)logState={date:logState.date,flow:existing.flow||'',mood:existing.mood||'',symptoms:existing.symptoms||[],notes:existing.notes||'',weight:existing.weight||'',water:existing.water||0}
   const settings=DB.settings
-  const allSymptoms=[...SYMPTOMS,...(settings.customSymptoms||[]).map(s=>({id:`custom_${s}`,label:s,emoji:'🏷️'}))]
-
+  const allSym=[...SYMPTOMS,...(settings.customSymptoms||[]).map(s=>({id:`custom_${s}`,label:s,emoji:'🏷️'}))]
   content.innerHTML=`
     <h1 class="page-title">Log Today</h1>
-    <div class="card">
-      <span class="section-label">Date</span>
-      <input type="date" id="log-date" class="form-input" value="${logState.date}" max="${todayISO()}">
-    </div>
-    <div class="card">
-      <span class="section-label">Flow</span>
-      <div class="chip-row">${FLOWS.map(f=>`<button class="chip${logState.flow===f.id?' active':''}" data-flow="${f.id}">${f.label}</button>`).join('')}</div>
-    </div>
-    <div class="card">
-      <span class="section-label">Mood</span>
-      <div class="chip-row">${MOODS.map(m=>`<button class="chip${logState.mood===m.id?' active':''}" data-mood="${m.id}">${m.emoji} ${m.label}</button>`).join('')}</div>
-    </div>
-    <div class="card">
-      <span class="section-label">Symptoms</span>
-      <div class="chip-row">${allSymptoms.map(s=>`<button class="chip${logState.symptoms.includes(s.id)?' active':''}" data-sym="${s.id}">${s.emoji} ${s.label}</button>`).join('')}</div>
-    </div>
-    <div class="card">
-      <span class="section-label">💧 Water intake (glasses)</span>
+    <div class="card"><span class="section-label">Date</span><input type="date" id="log-date" class="form-input" value="${logState.date}" max="${todayISO()}"></div>
+    <div class="card"><span class="section-label">Flow</span><div class="chip-row">${FLOWS.map(f=>`<button class="chip${logState.flow===f.id?' active':''}" data-flow="${f.id}">${f.label}</button>`).join('')}</div></div>
+    <div class="card"><span class="section-label">Mood</span><div class="chip-row">${MOODS.map(m=>`<button class="chip${logState.mood===m.id?' active':''}" data-mood="${m.id}">${m.emoji} ${m.label}</button>`).join('')}</div></div>
+    <div class="card"><span class="section-label">Symptoms</span><div class="chip-row">${allSym.map(s=>`<button class="chip${logState.symptoms.includes(s.id)?' active':''}" data-sym="${s.id}">${s.emoji} ${s.label}</button>`).join('')}</div></div>
+    <div class="card"><span class="section-label">💧 Water (glasses)</span>
       <div class="water-row">
         <button class="water-btn" id="water-dec">−</button>
         <span class="water-count" id="water-val">${logState.water}</span>
         <button class="water-btn" id="water-inc">+</button>
-        <span style="font-size:13px;color:var(--muted);margin-left:4px">glasses today</span>
+        <span style="font-size:12px;color:var(--muted);margin-left:4px">glasses today</span>
       </div>
     </div>
-    <div class="card">
-      <span class="section-label">⚖️ Weight (${settings.weightUnit})</span>
-      <div class="weight-row">
-        <input type="number" id="log-weight" class="weight-input" value="${logState.weight}" placeholder="e.g. 58.5" step="0.1" min="20" max="300">
-        <span class="weight-unit">${settings.weightUnit}</span>
+    <div class="card"><span class="section-label">⚖️ Weight (${settings.weightUnit})</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="number" id="log-weight" class="form-input" style="flex:1" value="${logState.weight}" placeholder="e.g. 58.5" step="0.1" min="20" max="300">
+        <span style="font-size:13px;color:var(--muted);font-weight:600">${settings.weightUnit}</span>
       </div>
     </div>
-    <div class="card">
-      <span class="section-label">Notes</span>
-      <textarea id="log-notes" class="form-input" rows="3" placeholder="How are you feeling today?" style="resize:none">${logState.notes}</textarea>
-    </div>
-    <button class="btn btn-primary" id="save-log" style="margin-bottom:16px">Save</button>
+    <div class="card"><span class="section-label">Notes</span><textarea id="log-notes" class="form-input" rows="3" placeholder="How are you feeling today?" style="resize:none">${logState.notes}</textarea></div>
+    <button class="btn btn-primary" id="save-log" style="margin-bottom:14px">Save</button>
   `
-
-  document.getElementById('log-date').addEventListener('change',e=>{ logState.date=e.target.value; renderLog() })
-  document.querySelectorAll('[data-flow]').forEach(el=>el.addEventListener('click',()=>{ logState.flow=logState.flow===el.dataset.flow?'':el.dataset.flow; renderLog() }))
-  document.querySelectorAll('[data-mood]').forEach(el=>el.addEventListener('click',()=>{ logState.mood=logState.mood===el.dataset.mood?'':el.dataset.mood; renderLog() }))
-  document.querySelectorAll('[data-sym]').forEach(el=>el.addEventListener('click',()=>{
-    const id=el.dataset.sym
-    logState.symptoms=logState.symptoms.includes(id)?logState.symptoms.filter(s=>s!==id):[...logState.symptoms,id]
-    renderLog()
-  }))
-  document.getElementById('water-dec').addEventListener('click',()=>{ logState.water=Math.max(0,logState.water-1); document.getElementById('water-val').textContent=logState.water })
-  document.getElementById('water-inc').addEventListener('click',()=>{ logState.water=Math.min(20,logState.water+1); document.getElementById('water-val').textContent=logState.water })
-  document.getElementById('log-weight').addEventListener('input',e=>{ logState.weight=e.target.value })
-  document.getElementById('log-notes').addEventListener('input',e=>{ logState.notes=e.target.value })
+  document.getElementById('log-date').addEventListener('change',e=>{logState.date=e.target.value;renderLog()})
+  document.querySelectorAll('[data-flow]').forEach(el=>el.addEventListener('click',()=>{logState.flow=logState.flow===el.dataset.flow?'':el.dataset.flow;renderLog()}))
+  document.querySelectorAll('[data-mood]').forEach(el=>el.addEventListener('click',()=>{logState.mood=logState.mood===el.dataset.mood?'':el.dataset.mood;renderLog()}))
+  document.querySelectorAll('[data-sym]').forEach(el=>el.addEventListener('click',()=>{const id=el.dataset.sym;logState.symptoms=logState.symptoms.includes(id)?logState.symptoms.filter(s=>s!==id):[...logState.symptoms,id];renderLog()}))
+  document.getElementById('water-dec').addEventListener('click',()=>{logState.water=Math.max(0,logState.water-1);document.getElementById('water-val').textContent=logState.water})
+  document.getElementById('water-inc').addEventListener('click',()=>{logState.water=Math.min(20,logState.water+1);document.getElementById('water-val').textContent=logState.water})
+  document.getElementById('log-weight').addEventListener('input',e=>{logState.weight=e.target.value})
+  document.getElementById('log-notes').addEventListener('input',e=>{logState.notes=e.target.value})
   document.getElementById('save-log').addEventListener('click',()=>{
-    const syms=DB.symptoms, i=syms.findIndex(s=>s.date===logState.date)
+    const syms=DB.symptoms,i=syms.findIndex(s=>s.date===logState.date)
     const entry={id:i>=0?syms[i].id:crypto.randomUUID(),...logState}
-    if(i>=0) syms[i]={...syms[i],...entry}; else syms.unshift(entry)
+    if(i>=0)syms[i]={...syms[i],...entry};else syms.unshift(entry)
     DB.saveSymptoms(syms)
     const btn=document.getElementById('save-log')
-    btn.textContent='✓ Saved!'; btn.classList.add('btn-saved')
-    setTimeout(()=>{ btn.textContent='Save'; btn.classList.remove('btn-saved') },2000)
+    btn.textContent='✓ Saved!';btn.classList.add('btn-saved')
+    setTimeout(()=>{btn.textContent='Save';btn.classList.remove('btn-saved')},2000)
   })
 }
 
@@ -800,247 +763,441 @@ function renderHistory(){
   const cycles=DB.cycles
   const sorted=[...cycles].filter(c=>c.startDate).sort((a,b)=>b.startDate.localeCompare(a.startDate))
   const stats=cycleStats(cycles)
-
-  const statCards=[
-    {val:stats.total||0,       label:'Total cycles'},
-    {val:stats.avg?`${stats.avg}d`:'—',     label:'Avg cycle'},
-    {val:stats.shortest?`${stats.shortest}d`:'—', label:'Shortest'},
-    {val:stats.longest?`${stats.longest}d`:'—',   label:'Longest'},
-  ]
-
   content.innerHTML=`
     <h1 class="page-title">History 📊</h1>
     <div class="history-stats">
-      ${statCards.map(s=>`<div class="hstat"><div class="hstat-val">${s.val}</div><div class="hstat-label">${s.label}</div></div>`).join('')}
+      ${[{val:stats.total||0,label:'Total cycles'},{val:stats.avg?`${stats.avg}d`:'—',label:'Avg cycle'},{val:stats.shortest?`${stats.shortest}d`:'—',label:'Shortest'},{val:stats.longest?`${stats.longest}d`:'—',label:'Longest'}].map(s=>`<div class="hstat"><div class="hstat-val">${s.val}</div><div class="hstat-label">${s.label}</div></div>`).join('')}
     </div>
-    ${stats.avgPeriod?`<div class="card" style="padding:14px 20px;text-align:center">
-      <span style="font-size:13px;color:var(--muted)">Average period duration: </span>
-      <strong style="color:var(--period-color)">${stats.avgPeriod} days</strong>
-    </div>`:''}
+    ${stats.avgPeriod?`<div class="card" style="text-align:center;padding:12px 18px"><span style="font-size:12px;color:var(--muted)">Average period duration: </span><strong style="color:var(--period-color)">${stats.avgPeriod} days</strong></div>`:''}
     <div class="card">
-      <div class="settings-section">All Cycles</div>
-      ${sorted.length===0?`<div class="empty-state"><div class="empty-icon">🌸</div><p>No cycles logged yet.<br>Tap Home → Log period to get started.</p></div>`
+      <div style="font-size:14px;font-weight:700;color:var(--pink-dark);margin-bottom:14px">All Cycles</div>
+      ${sorted.length===0?`<div class="empty-state"><div class="ei">🌸</div><p>No cycles logged yet.<br>Tap Home → Log period to get started.</p></div>`
       :sorted.map((c,idx)=>{
-        const nextCycle=sorted[idx-1]
-        const cycleLen=nextCycle?daysBetween(c.startDate,nextCycle.startDate):null
-        const periodLen=c.endDate?daysBetween(c.startDate,c.endDate)+1:null
-        return `<div class="cycle-item">
+        const next=sorted[idx-1],cycleLen=next?daysBetween(c.startDate,next.startDate):null
+        const pLen=c.endDate?daysBetween(c.startDate,c.endDate)+1:null
+        return`<div class="cycle-item">
           <span class="cycle-dot"></span>
-          <div class="cycle-info">
+          <div style="flex:1">
             <div class="cycle-dates">${fmtShort(c.startDate)}${c.endDate?' – '+fmtShort(c.endDate):' (ongoing)'}</div>
-            <div class="cycle-meta">${periodLen?`${periodLen} day period`:'No end date'}${cycleLen?` · ${cycleLen} day cycle`:''}</div>
+            <div class="cycle-meta">${pLen?`${pLen} day period`:'No end date'}${cycleLen?` · ${cycleLen} day cycle`:''}</div>
           </div>
-          <div class="cycle-actions">
+          <div style="display:flex;gap:6px">
             <button class="icon-btn icon-btn-edit" data-edit="${c.id}">✏️</button>
             <button class="icon-btn icon-btn-del" data-del="${c.id}">🗑️</button>
           </div>
-        </div>`
-      }).join('')}
+        </div>`}).join('')}
     </div>
   `
-
-  document.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{
-    if(!confirm('Delete this cycle?')) return
-    DB.saveCycles(DB.cycles.filter(c=>c.id!==btn.dataset.del))
-    renderHistory()
-  }))
-
+  document.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{if(!confirm('Delete this cycle?'))return;DB.saveCycles(DB.cycles.filter(c=>c.id!==btn.dataset.del));renderHistory()}))
   document.querySelectorAll('[data-edit]').forEach(btn=>btn.addEventListener('click',()=>{
-    const c=DB.cycles.find(x=>x.id===btn.dataset.edit); if(!c) return
-    const today=todayISO()
-    const overlay=document.createElement('div')
-    overlay.className='overlay'
-    overlay.innerHTML=`
-      <div class="sheet">
-        <div class="sheet-handle"></div>
-        <div class="sheet-title">Edit Cycle</div>
-        <div class="form-group"><label>Start date</label><input type="date" id="edit-start" class="form-input" value="${c.startDate}" max="${today}"></div>
-        <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="edit-end" class="form-input" value="${c.endDate||''}" max="${today}"></div>
-        <div id="edit-error" class="form-error" style="display:none"></div>
-        <button class="btn btn-primary" id="edit-save" style="margin-bottom:8px">Save changes</button>
-        <button class="btn btn-secondary" id="edit-cancel">Cancel</button>
-      </div>
-    `
-    overlay.addEventListener('click',e=>{ if(e.target===overlay)overlay.remove() })
-    document.body.appendChild(overlay)
-    document.getElementById('edit-cancel').addEventListener('click',()=>overlay.remove())
+    const c=DB.cycles.find(x=>x.id===btn.dataset.edit);if(!c)return
+    const today=todayISO(),ov=document.createElement('div');ov.className='overlay'
+    ov.innerHTML=`<div class="sheet">
+      <div class="sheet-handle"></div><div class="sheet-title">Edit Cycle</div>
+      <div class="form-group"><label>Start date</label><input type="date" id="edit-start" class="form-input" value="${c.startDate}" max="${today}"></div>
+      <div class="form-group"><label>End date <span class="optional">(optional)</span></label><input type="date" id="edit-end" class="form-input" value="${c.endDate||''}" max="${today}"></div>
+      <div id="edit-error" class="form-error" style="display:none"></div>
+      <button class="btn btn-primary" id="edit-save" style="margin-bottom:8px">Save</button>
+      <button class="btn btn-secondary" id="edit-cancel">Cancel</button>
+    </div>`
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+    document.body.appendChild(ov)
+    document.getElementById('edit-cancel').addEventListener('click',()=>ov.remove())
     document.getElementById('edit-save').addEventListener('click',()=>{
-      const start=document.getElementById('edit-start').value
-      const end=document.getElementById('edit-end').value
-      const err=document.getElementById('edit-error')
+      const start=document.getElementById('edit-start').value,end=document.getElementById('edit-end').value,err=document.getElementById('edit-error')
       if(!start){err.style.display='block';err.textContent='Start date required';return}
       if(end&&end<start){err.style.display='block';err.textContent='End must be after start';return}
-      const updated=DB.cycles.map(x=>x.id===c.id?{...x,startDate:start,endDate:end||null}:x)
-      DB.saveCycles(updated); overlay.remove(); renderHistory()
+      DB.saveCycles(DB.cycles.map(x=>x.id===c.id?{...x,startDate:start,endDate:end||null}:x))
+      ov.remove();renderHistory()
     })
+  }))
+}
+
+// ── Meds ──────────────────────────────────────────────────────────────────────
+function renderMeds(){
+  const meds=DB.meds,today=todayISO(),logs=DB.medLogs,todayLog=logs[today]||{}
+  const active=meds.filter(m=>m.active!==false),archived=meds.filter(m=>m.active===false)
+  const refillWarnings=active.filter(m=>m.pillsLeft!=null&&m.pillsLeft<=7)
+  content.innerHTML=`
+    <h1 class="page-title">💊 Medications</h1>
+    ${refillWarnings.length?`<div class="refill-warn">⚠️ Refill soon: ${refillWarnings.map(m=>`<b>${m.name}</b> (${m.pillsLeft} left)`).join(', ')}</div>`:''}
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700">Today — ${today}</div>
+        <button class="btn btn-primary" id="add-med-btn" style="width:auto;padding:7px 14px;font-size:13px">+ Add</button>
+      </div>
+      ${active.length===0?`<div class="empty-state"><div class="ei">💊</div><p>No medications added yet.<br>Tap + Add to get started.</p></div>`
+      :active.map(m=>{
+        const done=todayLog[m.id]==='done'
+        const refillSoon=m.pillsLeft!=null&&m.pillsLeft<=7
+        return`<div class="med-item">
+          <div class="med-check${done?' done':''}" data-mc="${m.id}">${done?'✓':''}</div>
+          <div style="flex:1">
+            <div class="med-name">${m.name}${refillSoon?` <span style="font-size:10px;background:#fef3e2;color:#8a5500;border-radius:var(--r-full);padding:1px 6px;font-weight:600">⚠️ Refill</span>`:''}</div>
+            <div class="med-dose">${[m.dose,m.frequency,m.time].filter(Boolean).join(' · ')}${m.pillsLeft!=null?` · ${m.pillsLeft} pills left`:''}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="icon-btn icon-btn-edit" data-med-edit="${m.id}">✏️</button>
+            <button class="icon-btn icon-btn-del" data-med-del="${m.id}">🗑️</button>
+          </div>
+        </div>`}).join('')}
+    </div>
+
+    ${archived.length?`<div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px">Archived</div>
+      ${archived.map(m=>`<div class="med-item" style="opacity:.6">
+        <div style="width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div>
+        <div style="flex:1"><div class="med-name">${m.name}</div><div class="med-dose">${m.dose||''}</div></div>
+        <button class="icon-btn" style="background:var(--surface-alt);color:var(--pink)" data-med-restore="${m.id}">↺</button>
+      </div>`).join('')}
+    </div>`:''}
+
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--pink-dark);margin-bottom:12px">📋 Med Log History</div>
+      ${Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,7).map(date=>{
+        const dayLog=logs[date],taken=Object.values(dayLog).filter(v=>v==='done').length,total=active.length
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px">${date}</span>
+          <span style="font-size:12px;color:${taken===total?'var(--green)':'var(--orange)'};font-weight:600">${taken}/${total} taken</span>
+        </div>`}).join('')}
+      ${Object.keys(logs).length===0?'<p style="font-size:13px;color:var(--muted)">No history yet. Start checking off meds!</p>':''}
+    </div>
+  `
+  document.getElementById('add-med-btn').addEventListener('click',()=>showMedModal(null))
+  document.querySelectorAll('[data-mc]').forEach(el=>el.addEventListener('click',()=>{
+    const id=el.dataset.mc,logs=DB.medLogs,tlog=logs[today]||{}
+    tlog[id]=tlog[id]==='done'?null:'done'
+    logs[today]=tlog;DB.saveMedLogs(logs);renderMeds()
+  }))
+  document.querySelectorAll('[data-med-edit]').forEach(btn=>btn.addEventListener('click',()=>{
+    const m=DB.meds.find(x=>x.id===btn.dataset.medEdit);if(m)showMedModal(m)
+  }))
+  document.querySelectorAll('[data-med-del]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!confirm('Archive this medication?'))return
+    DB.saveMeds(DB.meds.map(m=>m.id===btn.dataset.medDel?{...m,active:false}:m));renderMeds()
+  }))
+  document.querySelectorAll('[data-med-restore]').forEach(btn=>btn.addEventListener('click',()=>{
+    DB.saveMeds(DB.meds.map(m=>m.id===btn.dataset.medRestore?{...m,active:true}:m));renderMeds()
+  }))
+}
+
+function showMedModal(existing){
+  const ov=document.createElement('div');ov.className='overlay'
+  ov.innerHTML=`<div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">${existing?'Edit Medication':'Add Medication'}</div>
+    <div class="form-group"><label>Medication name *</label><input type="text" id="med-name" class="form-input" value="${existing?.name||''}" placeholder="e.g. Metformin, Spironolactone"></div>
+    <div class="form-group"><label>Dose</label><input type="text" id="med-dose" class="form-input" value="${existing?.dose||''}" placeholder="e.g. 500mg, 25mg"></div>
+    <div class="form-group"><label>Frequency</label>
+      <select id="med-freq" class="form-input">
+        <option value="">Select...</option>
+        ${['Once daily','Twice daily','Three times daily','Every other day','Weekly','As needed'].map(f=>`<option value="${f}" ${existing?.frequency===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label>Time</label>
+      <select id="med-time" class="form-input">
+        <option value="">Any time</option>
+        ${['Morning','Afternoon','Evening','Bedtime','With food'].map(t=>`<option value="${t}" ${existing?.time===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label>Pills remaining (for refill alert)</label><input type="number" id="med-pills" class="form-input" value="${existing?.pillsLeft??''}" placeholder="e.g. 30" min="0"></div>
+    <div class="form-group"><label>Notes</label><input type="text" id="med-notes" class="form-input" value="${existing?.notes||''}" placeholder="e.g. Take with food"></div>
+    <div id="med-error" class="form-error" style="display:none"></div>
+    <button class="btn btn-primary" id="save-med" style="margin-bottom:8px">Save</button>
+    <button class="btn btn-secondary" id="cancel-med">Cancel</button>
+  </div>`
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+  document.body.appendChild(ov)
+  document.getElementById('cancel-med').addEventListener('click',()=>ov.remove())
+  document.getElementById('save-med').addEventListener('click',()=>{
+    const name=document.getElementById('med-name').value.trim()
+    const err=document.getElementById('med-error')
+    if(!name){err.style.display='block';err.textContent='Medication name is required';return}
+    const pillsVal=document.getElementById('med-pills').value
+    const med={
+      id:existing?.id||crypto.randomUUID(),name,
+      dose:document.getElementById('med-dose').value.trim(),
+      frequency:document.getElementById('med-freq').value,
+      time:document.getElementById('med-time').value,
+      pillsLeft:pillsVal!==''?parseInt(pillsVal):null,
+      notes:document.getElementById('med-notes').value.trim(),
+      active:true,
+      addedDate:existing?.addedDate||todayISO()
+    }
+    const meds=DB.meds
+    if(existing){const i=meds.findIndex(m=>m.id===existing.id);if(i>=0)meds[i]=med}
+    else meds.unshift(med)
+    DB.saveMeds(meds);ov.remove();renderMeds()
+  })
+}
+
+// ── Health (Blood Work) ───────────────────────────────────────────────────────
+let healthTab='results'
+function renderHealth(){
+  const tests=DB.bloodTests.sort((a,b)=>b.date.localeCompare(a.date))
+  const categories=[...new Set(BLOOD_MARKERS.map(m=>m.category))]
+  content.innerHTML=`
+    <h1 class="page-title">🩺 Health</h1>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      ${['results','trends','add'].map(t=>`<button class="chip${healthTab===t?' active':''}" data-htab="${t}">${t==='results'?'📋 Results':t==='trends'?'📈 Trends':'+ New Test'}</button>`).join('')}
+    </div>
+
+    ${healthTab==='add'?renderAddTest():''}
+    ${healthTab==='results'?renderBloodResults(tests):''}
+    ${healthTab==='trends'?renderTrends(tests):''}
+  `
+  document.querySelectorAll('[data-htab]').forEach(el=>el.addEventListener('click',()=>{healthTab=el.dataset.htab;renderHealth()}))
+  if(healthTab==='add')wireAddTest()
+  if(healthTab==='results')wireResults(tests)
+}
+
+function renderBloodResults(tests){
+  if(tests.length===0)return`<div class="empty-state"><div class="ei">🩺</div><p>No blood tests logged yet.<br>Tap "+ New Test" to add your results.</p></div>`
+  return tests.map(test=>`
+    <div class="card test-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${test.label||'Blood Test'}</div>
+          <div style="font-size:12px;color:var(--muted)">${test.date}${test.lab?' · '+test.lab:''}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${test.photoUrl?`<img src="${test.photoUrl}" class="photo-thumb" data-photo="${test.photoUrl}">`:''}
+          <button class="icon-btn icon-btn-del" data-test-del="${test.id}">🗑️</button>
+        </div>
+      </div>
+      ${(test.results||[]).map(r=>{
+        const marker=BLOOD_MARKERS.find(m=>m.id===r.markerId)
+        if(!marker)return''
+        const flag=flagValue(marker,r.value)
+        const flagHtml=flag?`<span class="flag flag-${flag}">${flag==='ok'?'✓ Normal':flag==='low'?'↓ Low':'↑ High'}</span>`:''
+        return`<div class="bw-marker-row">
+          <div style="flex:1">
+            <div class="bw-marker-name">${marker.label}</div>
+            <div class="bw-marker-range">Optimal: ${marker.optimal} ${marker.unit}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="bw-marker-val" style="color:${flag==='ok'?'var(--green)':flag==='low'?'var(--blue)':'var(--orange)'}">${r.value} ${marker.unit}</div>
+            ${flagHtml}
+          </div>
+        </div>`}).join('')}
+      ${test.notes?`<div style="font-size:12px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">${test.notes}</div>`:''}
+    </div>`).join('')
+}
+
+function renderTrends(tests){
+  if(tests.length<2)return`<div class="card"><p style="font-size:13px;color:var(--muted);text-align:center">Log at least 2 tests to see trends.</p></div>`
+  const allMarkerIds=[...new Set(tests.flatMap(t=>(t.results||[]).map(r=>r.markerId)))]
+  return allMarkerIds.map(mid=>{
+    const marker=BLOOD_MARKERS.find(m=>m.id===mid);if(!marker)return''
+    const pts=tests.filter(t=>(t.results||[]).some(r=>r.markerId===mid)).map(t=>({date:t.date,val:parseFloat((t.results||[]).find(r=>r.markerId===mid)?.value||'0')})).filter(p=>!isNaN(p.val)).sort((a,b)=>a.date.localeCompare(b.date))
+    if(pts.length<2)return''
+    const min=Math.min(...pts.map(p=>p.val)),max=Math.max(...pts.map(p=>p.val)),range=max-min||1
+    return`<div class="card">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">${marker.label} <span style="font-size:11px;color:var(--muted);font-weight:400">${marker.unit}</span></div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:60px;margin-bottom:6px">
+        ${pts.map(p=>{
+          const h=Math.round(((p.val-min)/range)*50)+10
+          const flag=flagValue(marker,p.val)
+          const col=flag==='ok'?'var(--green)':flag==='low'?'var(--blue)':'var(--orange)'
+          return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="font-size:9px;color:var(--muted)">${p.val}</div>
+            <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0"></div>
+          </div>`}).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        ${pts.map(p=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--muted)">${p.date.slice(5)}</div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">Optimal: ${marker.optimal} ${marker.unit}</div>
+    </div>`}).join('')
+}
+
+function renderAddTest(){
+  return`<div class="card">
+    <div class="form-group"><label>Test label</label><input type="text" id="test-label" class="form-input" placeholder="e.g. Annual blood work, Hormone panel"></div>
+    <div class="form-group"><label>Date</label><input type="date" id="test-date" class="form-input" value="${todayISO()}" max="${todayISO()}"></div>
+    <div class="form-group"><label>Lab / Doctor</label><input type="text" id="test-lab" class="form-input" placeholder="e.g. LabCorp, Dr. Smith"></div>
+    <div class="form-group"><label>📸 Upload report photo</label>
+      <input type="file" id="test-photo" accept="image/*" capture="environment" style="display:none">
+      <button class="btn btn-secondary" id="photo-btn" style="margin-bottom:8px">📷 Attach photo</button>
+      <div id="photo-preview" style="margin-top:8px"></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--pink-dark);margin-bottom:12px">Enter your values</div>
+    ${[...new Set(BLOOD_MARKERS.map(m=>m.category))].map(cat=>`
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;margin-top:12px;text-transform:uppercase;letter-spacing:.5px">${cat}</div>
+      ${BLOOD_MARKERS.filter(m=>m.category===cat).map(m=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <label style="flex:1;font-size:13px">${m.label}</label>
+          <input type="number" class="form-input marker-input" data-marker="${m.id}" step="0.01" placeholder="—" style="width:90px;text-align:right">
+          <span style="font-size:11px;color:var(--muted);width:50px">${m.unit}</span>
+        </div>`).join('')}`).join('')}
+    <div class="form-group" style="margin-top:12px"><label>Notes</label><textarea id="test-notes" class="form-input" rows="2" placeholder="Doctor's comments, context..." style="resize:none"></textarea></div>
+    <button class="btn btn-primary" id="save-test" style="margin-bottom:8px">Save Test Results</button>
+  </div>`
+}
+
+let pendingPhotoUrl=null
+function wireAddTest(){
+  pendingPhotoUrl=null
+  document.getElementById('photo-btn')?.addEventListener('click',()=>document.getElementById('test-photo')?.click())
+  document.getElementById('test-photo')?.addEventListener('change',e=>{
+    const file=e.target.files[0];if(!file)return
+    const reader=new FileReader()
+    reader.onload=ev=>{
+      pendingPhotoUrl=ev.target.result
+      document.getElementById('photo-preview').innerHTML=`<img src="${pendingPhotoUrl}" style="max-width:100%;border-radius:var(--r-md);border:2px solid var(--border)">`
+    }
+    reader.readAsDataURL(file)
+  })
+  document.getElementById('save-test')?.addEventListener('click',()=>{
+    const results=[]
+    document.querySelectorAll('.marker-input').forEach(inp=>{
+      if(inp.value.trim())results.push({markerId:inp.dataset.marker,value:inp.value.trim()})
+    })
+    const test={
+      id:crypto.randomUUID(),
+      date:document.getElementById('test-date').value||todayISO(),
+      label:document.getElementById('test-label').value.trim()||'Blood Test',
+      lab:document.getElementById('test-lab').value.trim(),
+      notes:document.getElementById('test-notes').value.trim(),
+      photoUrl:pendingPhotoUrl,
+      results
+    }
+    const tests=DB.bloodTests;tests.unshift(test);DB.saveBloodTests(tests)
+    pendingPhotoUrl=null;healthTab='results';renderHealth()
+  })
+}
+
+function wireResults(tests){
+  document.querySelectorAll('[data-test-del]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!confirm('Delete this test?'))return
+    DB.saveBloodTests(DB.bloodTests.filter(t=>t.id!==btn.dataset.testDel));renderHealth()
+  }))
+  document.querySelectorAll('[data-photo]').forEach(img=>img.addEventListener('click',()=>{
+    const ov=document.createElement('div');ov.className='overlay';ov.style.alignItems='center'
+    ov.innerHTML=`<div style="max-width:400px;padding:16px"><img src="${img.dataset.photo}" style="width:100%;border-radius:var(--r-lg)"><button class="btn btn-secondary" id="close-photo" style="margin-top:12px">Close</button></div>`
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()})
+    document.body.appendChild(ov)
+    document.getElementById('close-photo').addEventListener('click',()=>ov.remove())
   }))
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 function renderSettings(){
-  const s=DB.settings, cycles=DB.cycles, syms=DB.symptoms
-
+  const s=DB.settings,cycles=DB.cycles,syms=DB.symptoms,meds=DB.meds,tests=DB.bloodTests
   content.innerHTML=`
     <h1 class="page-title">Settings</h1>
     <div class="card">
       <div class="settings-section">Cycle Settings</div>
-      <div class="stepper-row">
-        <span class="stepper-label">Average cycle length</span>
-        <div class="stepper-controls">
-          <button class="stepper-btn" id="cl-dec">−</button>
-          <span class="stepper-val" id="cl-val">${s.averageCycleLength}</span>
-          <button class="stepper-btn" id="cl-inc">+</button>
-        </div>
-      </div>
-      <div class="stepper-row">
-        <span class="stepper-label">Average period length</span>
-        <div class="stepper-controls">
-          <button class="stepper-btn" id="pl-dec">−</button>
-          <span class="stepper-val" id="pl-val">${s.averagePeriodLength}</span>
-          <button class="stepper-btn" id="pl-inc">+</button>
-        </div>
-      </div>
+      <div class="stepper-row"><span class="stepper-label">Average cycle length</span><div class="stepper-controls"><button class="stepper-btn" id="cl-dec">−</button><span class="stepper-val" id="cl-val">${s.averageCycleLength}</span><button class="stepper-btn" id="cl-inc">+</button></div></div>
+      <div class="stepper-row"><span class="stepper-label">Average period length</span><div class="stepper-controls"><button class="stepper-btn" id="pl-dec">−</button><span class="stepper-val" id="pl-val">${s.averagePeriodLength}</span><button class="stepper-btn" id="pl-inc">+</button></div></div>
     </div>
-
     <div class="card">
-      <div class="settings-section">Units</div>
-      <div class="toggle-row" style="margin-bottom:0">
-        <div><div class="toggle-label">Weight unit</div></div>
-        <button id="unit-toggle" class="toggle-btn on">${s.weightUnit.toUpperCase()}</button>
-      </div>
+      <div class="settings-section">Units & Preferences</div>
+      <div class="toggle-row" style="margin-bottom:0"><div><div class="toggle-label">Weight unit</div></div><button id="unit-toggle" class="toggle-btn on">${s.weightUnit.toUpperCase()}</button></div>
     </div>
-
     <div class="card">
       <div class="settings-section">Custom Symptoms</div>
-      <div class="custom-sym-list" id="custom-sym-list">
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
         ${(s.customSymptoms||[]).length===0?'<p style="font-size:13px;color:var(--muted)">No custom symptoms yet.</p>':
-          (s.customSymptoms||[]).map(sym=>`
-            <div class="custom-sym-item">
-              <span class="custom-sym-name">🏷️ ${sym}</span>
-              <button class="icon-btn icon-btn-del" data-delsym="${sym}">✕</button>
-            </div>
-          `).join('')}
+          (s.customSymptoms||[]).map(sym=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-alt);border-radius:var(--r-md);padding:9px 12px">
+            <span style="font-size:13px">🏷️ ${sym}</span>
+            <button class="icon-btn icon-btn-del" data-delsym="${sym}" style="width:24px;height:24px;font-size:12px">✕</button>
+          </div>`).join('')}
       </div>
       <div class="add-sym-row">
-        <input type="text" id="new-sym-input" class="add-sym-input" placeholder="e.g. Hot flashes" maxlength="30">
-        <button class="add-sym-btn" id="add-sym-btn">Add</button>
+        <input type="text" id="new-sym" class="add-sym-input" placeholder="e.g. Hot flashes" maxlength="30">
+        <button class="add-sym-btn" id="add-sym">Add</button>
       </div>
     </div>
-
     <div class="card">
       <div class="settings-section">Notifications</div>
       <div class="toggle-row">
         <div><div class="toggle-label">Period reminders</div><div class="toggle-sub">Notify before predicted period</div></div>
         <button id="notif-toggle" class="toggle-btn${s.notificationsEnabled?' on':''}">${s.notificationsEnabled?'ON':'OFF'}</button>
       </div>
-      ${s.notificationsEnabled?`<div class="stepper-row">
-        <span class="stepper-label">Days before to remind</span>
-        <div class="stepper-controls">
-          <button class="stepper-btn" id="rb-dec">−</button>
-          <span class="stepper-val" id="rb-val">${s.reminderDaysBefore}</span>
-          <button class="stepper-btn" id="rb-inc">+</button>
-        </div>
-      </div>`:''}
-      ${!window.navigator.standalone?`<p class="notif-note">On iPhone, notifications require adding Bloom to your Home Screen first.</p>`:''}
+      ${s.notificationsEnabled?`<div class="stepper-row"><span class="stepper-label">Days before to remind</span><div class="stepper-controls"><button class="stepper-btn" id="rb-dec">−</button><span class="stepper-val" id="rb-val">${s.reminderDaysBefore}</span><button class="stepper-btn" id="rb-inc">+</button></div></div>`:''}
+      ${!window.navigator.standalone?`<p style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px">On iPhone, notifications require adding Bloom to your Home Screen first.</p>`:''}
     </div>
-
     <div class="card">
       <div class="settings-section">Data</div>
-      <p class="data-info">${cycles.length} cycles · ${syms.length} symptom entries</p>
-      <button class="btn btn-secondary" id="export-btn" style="margin-bottom:8px">Export backup (JSON)</button>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">${cycles.length} cycles · ${syms.length} symptom entries · ${meds.length} medications · ${tests.length} blood tests</p>
+      <button class="btn btn-secondary" id="export-btn" style="margin-bottom:8px">Export all data (JSON)</button>
       <button class="btn btn-secondary" id="import-btn" style="margin-bottom:8px">Import backup (JSON)</button>
       <input type="file" id="import-file" accept=".json" style="display:none">
       <button class="btn btn-danger" id="clear-btn">Clear all data</button>
     </div>
-
-    <div class="about-block"><p>🌸 Bloom Period Tracker v2</p><p>Your data stays on your device — never uploaded anywhere.</p></div>
+    <div class="about-block"><p>🌸 Bloom Health Tracker v3</p><p>Your data stays on your device — never uploaded anywhere.</p></div>
   `
-
-  document.getElementById('cl-dec').addEventListener('click',()=>{ const v=Math.max(21,DB.settings.averageCycleLength-1); DB.updateSetting('averageCycleLength',v); document.getElementById('cl-val').textContent=v })
-  document.getElementById('cl-inc').addEventListener('click',()=>{ const v=Math.min(40,DB.settings.averageCycleLength+1); DB.updateSetting('averageCycleLength',v); document.getElementById('cl-val').textContent=v })
-  document.getElementById('pl-dec').addEventListener('click',()=>{ const v=Math.max(2,DB.settings.averagePeriodLength-1); DB.updateSetting('averagePeriodLength',v); document.getElementById('pl-val').textContent=v })
-  document.getElementById('pl-inc').addEventListener('click',()=>{ const v=Math.min(10,DB.settings.averagePeriodLength+1); DB.updateSetting('averagePeriodLength',v); document.getElementById('pl-val').textContent=v })
-  document.getElementById('rb-dec')?.addEventListener('click',()=>{ const v=Math.max(1,DB.settings.reminderDaysBefore-1); DB.updateSetting('reminderDaysBefore',v); document.getElementById('rb-val').textContent=v })
-  document.getElementById('rb-inc')?.addEventListener('click',()=>{ const v=Math.min(7,DB.settings.reminderDaysBefore+1); DB.updateSetting('reminderDaysBefore',v); document.getElementById('rb-val').textContent=v })
-
-  document.getElementById('unit-toggle').addEventListener('click',()=>{
-    const newUnit=DB.settings.weightUnit==='kg'?'lbs':'kg'
-    DB.updateSetting('weightUnit',newUnit)
-    document.getElementById('unit-toggle').textContent=newUnit.toUpperCase()
-  })
-
+  document.getElementById('cl-dec').addEventListener('click',()=>{const v=Math.max(21,DB.settings.averageCycleLength-1);DB.updateSetting('averageCycleLength',v);document.getElementById('cl-val').textContent=v})
+  document.getElementById('cl-inc').addEventListener('click',()=>{const v=Math.min(40,DB.settings.averageCycleLength+1);DB.updateSetting('averageCycleLength',v);document.getElementById('cl-val').textContent=v})
+  document.getElementById('pl-dec').addEventListener('click',()=>{const v=Math.max(2,DB.settings.averagePeriodLength-1);DB.updateSetting('averagePeriodLength',v);document.getElementById('pl-val').textContent=v})
+  document.getElementById('pl-inc').addEventListener('click',()=>{const v=Math.min(10,DB.settings.averagePeriodLength+1);DB.updateSetting('averagePeriodLength',v);document.getElementById('pl-val').textContent=v})
+  document.getElementById('rb-dec')?.addEventListener('click',()=>{const v=Math.max(1,DB.settings.reminderDaysBefore-1);DB.updateSetting('reminderDaysBefore',v);document.getElementById('rb-val').textContent=v})
+  document.getElementById('rb-inc')?.addEventListener('click',()=>{const v=Math.min(7,DB.settings.reminderDaysBefore+1);DB.updateSetting('reminderDaysBefore',v);document.getElementById('rb-val').textContent=v})
+  document.getElementById('unit-toggle').addEventListener('click',()=>{const v=DB.settings.weightUnit==='kg'?'lbs':'kg';DB.updateSetting('weightUnit',v);document.getElementById('unit-toggle').textContent=v.toUpperCase()})
   document.getElementById('notif-toggle').addEventListener('click',async()=>{
     if(!DB.settings.notificationsEnabled){
-      if(!('Notification' in window)){alert('Notifications not supported.');return}
-      const perm=await Notification.requestPermission()
-      if(perm==='granted'){DB.updateSetting('notificationsEnabled',true);renderSettings()}
+      if(!('Notification'in window)){alert('Notifications not supported.');return}
+      const p=await Notification.requestPermission()
+      if(p==='granted'){DB.updateSetting('notificationsEnabled',true);renderSettings()}
       else alert('Please allow notifications in your browser settings.')
-    } else { DB.updateSetting('notificationsEnabled',false); renderSettings() }
+    }else{DB.updateSetting('notificationsEnabled',false);renderSettings()}
   })
-
-  // Custom symptoms
   document.querySelectorAll('[data-delsym]').forEach(btn=>btn.addEventListener('click',()=>{
-    const updated=(DB.settings.customSymptoms||[]).filter(s=>s!==btn.dataset.delsym)
-    DB.updateSetting('customSymptoms',updated); renderSettings()
+    DB.updateSetting('customSymptoms',(DB.settings.customSymptoms||[]).filter(s=>s!==btn.dataset.delsym));renderSettings()
   }))
-  document.getElementById('add-sym-btn').addEventListener('click',()=>{
-    const val=document.getElementById('new-sym-input').value.trim()
-    if(!val) return
-    const current=DB.settings.customSymptoms||[]
-    if(current.includes(val)){alert('Already exists!');return}
-    DB.updateSetting('customSymptoms',[...current,val])
-    renderSettings()
+  document.getElementById('add-sym').addEventListener('click',()=>{
+    const val=document.getElementById('new-sym').value.trim();if(!val)return
+    const cur=DB.settings.customSymptoms||[]
+    if(cur.includes(val)){alert('Already exists!');return}
+    DB.updateSetting('customSymptoms',[...cur,val]);renderSettings()
   })
-  document.getElementById('new-sym-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('add-sym-btn').click() })
-
-  // Export
+  document.getElementById('new-sym').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('add-sym').click()})
   document.getElementById('export-btn').addEventListener('click',()=>{
-    const data={cycles:DB.cycles,symptoms:DB.symptoms,settings:DB.settings,exportedAt:new Date().toISOString()}
+    const data={cycles:DB.cycles,symptoms:DB.symptoms,meds:DB.meds,medLogs:DB.medLogs,bloodTests:DB.bloodTests,settings:DB.settings,exportedAt:new Date().toISOString()}
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'})
-    const url=URL.createObjectURL(blob), a=document.createElement('a')
-    a.href=url; a.download=`bloom-backup-${todayISO()}.json`; a.click(); URL.revokeObjectURL(url)
+    const url=URL.createObjectURL(blob),a=document.createElement('a')
+    a.href=url;a.download=`bloom-backup-${todayISO()}.json`;a.click();URL.revokeObjectURL(url)
   })
-
-  // Import
   document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-file').click())
   document.getElementById('import-file').addEventListener('change',e=>{
-    const file=e.target.files[0]; if(!file) return
-    const reader=new FileReader()
-    reader.onload=ev=>{
-      try {
-        const data=JSON.parse(ev.target.result)
-        if(!confirm(`Import ${data.cycles?.length||0} cycles and ${data.symptoms?.length||0} symptom entries? This will replace your current data.`)) return
-        if(data.cycles)   DB.saveCycles(data.cycles)
-        if(data.symptoms) DB.saveSymptoms(data.symptoms)
-        if(data.settings) DB.saveSettings({...DB.settings,...data.settings})
-        alert('✅ Data imported successfully!'); renderSettings()
-      } catch { alert('❌ Invalid backup file. Please select a valid Bloom JSON backup.') }
+    const file=e.target.files[0];if(!file)return
+    const r=new FileReader()
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result)
+        if(!confirm(`Import ${d.cycles?.length||0} cycles, ${d.symptoms?.length||0} symptoms, ${d.meds?.length||0} meds, ${d.bloodTests?.length||0} blood tests? Replaces current data.`))return
+        if(d.cycles)DB.saveCycles(d.cycles)
+        if(d.symptoms)DB.saveSymptoms(d.symptoms)
+        if(d.meds)DB.saveMeds(d.meds)
+        if(d.medLogs)DB.saveMedLogs(d.medLogs)
+        if(d.bloodTests)DB.saveBloodTests(d.bloodTests)
+        if(d.settings)DB.saveSettings({...DB.settings,...d.settings})
+        alert('✅ Data imported!');renderSettings()
+      }catch{alert('❌ Invalid backup file.')}
     }
-    reader.readAsText(file)
+    r.readAsText(file)
   })
-
-  // Clear
   document.getElementById('clear-btn').addEventListener('click',()=>{
-    if(!confirm('Delete all data permanently?')) return
-    ['pt_cycles','pt_symptoms','pt_settings'].forEach(k=>localStorage.removeItem(k))
+    if(!confirm('Delete ALL data permanently?'))return
+    ['pt_cycles','pt_symptoms','pt_settings','pt_meds','pt_medlogs','pt_blood'].forEach(k=>localStorage.removeItem(k))
     location.reload()
   })
 }
 
 // ── Notifications ─────────────────────────────────────────────────────────────
 async function checkReminders(){
-  const s=DB.settings; if(!s.notificationsEnabled) return
-  if(!('Notification' in window)||Notification.permission!=='granted') return
-  const pred=predictNext(DB.cycles,s); if(!pred) return
-  const reminderISO=toISO(addDays(parseISO(pred.predictedStart),-s.reminderDaysBefore))
+  const s=DB.settings;if(!s.notificationsEnabled)return
+  if(!('Notification'in window)||Notification.permission!=='granted')return
+  const pred=predictNext(DB.cycles,s);if(!pred)return
+  const rISO=toISO(addDays(parseISO(pred.predictedStart),-s.reminderDaysBefore))
   const key=`pt_notif_sent_${pred.predictedStart}`
-  if(localStorage.getItem(key)||reminderISO!==todayISO()) return
+  if(localStorage.getItem(key)||rISO!==todayISO())return
   const reg=await navigator.serviceWorker?.ready
-  if(reg){ await reg.showNotification('Bloom reminder 🌸',{body:`Your period is expected in ${s.reminderDaysBefore} day(s).`,icon:'icons/icon-192.png',tag:'period-reminder'}); localStorage.setItem(key,'1') }
+  if(reg){await reg.showNotification('Bloom reminder 🌸',{body:`Your period is expected in ${s.reminderDaysBefore} day(s).`,icon:'icons/icon-192.png',tag:'period-reminder'});localStorage.setItem(key,'1')}
 }
 
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{})
-
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})
 render()
 checkReminders()
 </script>
