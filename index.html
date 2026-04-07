@@ -210,7 +210,6 @@
   <nav class="nav">
     <div class="nav-item active" data-page="home"><span class="nav-icon">🌸</span><span class="nav-label">Home</span></div>
     <div class="nav-item" data-page="calendar"><span class="nav-icon">📅</span><span class="nav-label">Calendar</span></div>
-    <div class="nav-item" data-page="log"><span class="nav-icon">✏️</span><span class="nav-label">Log</span></div>
     <div class="nav-item" data-page="meds"><span class="nav-icon">💊</span><span class="nav-label">Meds</span></div>
     <div class="nav-item" data-page="health"><span class="nav-icon">🩺</span><span class="nav-label">Health</span></div>
     <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></div>
@@ -534,12 +533,16 @@ function renderHome(){
       <div class="stat-pill"><span class="stat-value">${settings.averagePeriodLength}</span><span class="stat-label">Period days</span></div>
       <div class="stat-pill"><span class="stat-value">${cycles.length}</span><span class="stat-label">Logged</span></div>
     </div>
-    <button class="btn btn-primary" id="log-btn" style="margin-bottom:14px">${active?'Update period':'+ Log period'}</button>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn btn-primary" id="log-btn" style="flex:1">${active?'Update period':'+ Log period'}</button>
+      <button class="btn btn-secondary" id="log-day-btn" style="flex:1">✏️ Log symptoms</button>
+    </div>
     ${!window.navigator.standalone?`<div class="install-banner"><strong>📱 Add to Home Screen</strong> Safari → Share → Add to Home Screen for notifications & offline use.</div>`:''}
   `
   document.getElementById('status-card')?.addEventListener('click',()=>cardAction?.())
   document.getElementById('phase-card')?.addEventListener('click',()=>showPhaseModal(phase))
   document.getElementById('log-btn').addEventListener('click',showLogModal)
+  document.getElementById('log-day-btn').addEventListener('click',()=>navigate('log'))
   document.getElementById('supp-setup-card')?.addEventListener('click',showSuppSetupModal)
   document.getElementById('edit-supps')?.addEventListener('click',showSuppSetupModal)
   document.getElementById('view-all-meds')?.addEventListener('click',()=>navigate('meds'))
@@ -732,7 +735,10 @@ function renderLog(){
   const settings=DB.settings
   const allSym=[...SYMPTOMS,...(settings.customSymptoms||[]).map(s=>({id:`custom_${s}`,label:s,emoji:'🏷️'}))]
   content.innerHTML=`
-    <h1 class="page-title">Log Today</h1>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <button id="log-back" style="background:none;border:none;font-size:22px;color:var(--pink);cursor:pointer;padding:0;line-height:1">‹</button>
+      <h1 class="page-title" style="margin:0">Log Symptoms</h1>
+    </div>
     <div class="card"><span class="section-label">Date</span><input type="date" id="log-date" class="form-input" value="${logState.date}" max="${todayISO()}"></div>
     <div class="card"><span class="section-label">Flow</span><div class="chip-row">${FLOWS.map(f=>`<button class="chip${logState.flow===f.id?' active':''}" data-flow="${f.id}">${f.label}</button>`).join('')}</div></div>
     <div class="card"><span class="section-label">Mood</span><div class="chip-row">${MOODS.map(m=>`<button class="chip${logState.mood===m.id?' active':''}" data-mood="${m.id}">${m.emoji} ${m.label}</button>`).join('')}</div></div>
@@ -754,6 +760,7 @@ function renderLog(){
     <div class="card"><span class="section-label">Notes</span><textarea id="log-notes" class="form-input" rows="3" placeholder="How are you feeling today?" style="resize:none">${logState.notes}</textarea></div>
     <button class="btn btn-primary" id="save-log" style="margin-bottom:14px">Save</button>
   `
+  document.getElementById('log-back').addEventListener('click',()=>navigate('home'))
   document.getElementById('log-date').addEventListener('change',e=>{logState.date=e.target.value;renderLog()})
   document.querySelectorAll('[data-flow]').forEach(el=>el.addEventListener('click',()=>{logState.flow=logState.flow===el.dataset.flow?'':el.dataset.flow;renderLog()}))
   document.querySelectorAll('[data-mood]').forEach(el=>el.addEventListener('click',()=>{logState.mood=logState.mood===el.dataset.mood?'':el.dataset.mood;renderLog()}))
